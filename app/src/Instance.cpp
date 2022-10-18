@@ -1,5 +1,5 @@
 // Instance.cpp
-#include "Instance.hpp"
+#include "vkw\Instance.hpp"
 
 void vkw::Instance::createInstance
 (
@@ -29,4 +29,12 @@ void vkw::Instance::createInstance
   {
     throw std::runtime_error("failed to create instance!");
   }
+
+  // Copy reference
+  m_vk_instance = vk_instance;
+}
+
+void vkw::Instance::destroyInstance()
+{
+  vkDestroyInstance(m_vk_instance, nullptr);
 }

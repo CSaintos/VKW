@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "Context.hpp"
+#include <vkw.hpp>
 
 /**
  * A triangle app
@@ -32,15 +32,30 @@ private:
 
   void initWindow()
   {
+    glfwInit();
+
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
   }
 
+  void createInstance()
+  {
+    std::string app_name = "Hello Triangle";
+    const int version[3] = {1, 0, 0};
+    uint32_t glfw_extension_count = 0;
+    const char **glfw_extensions;
+
+    glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+
+    vkw::Instance::createInstance(m_context.instance, 
+        app_name, version, glfw_extensions, glfw_extension_count);
+  }
+
   void initVulkan()
   {
-
+    createInstance();
   }
 
   void mainLoop()
@@ -53,6 +68,8 @@ private:
 
   void cleanup()
   {
+    vkw::Instance::destroyInstance();
+
     glfwDestroyWindow(m_window);
 
     glfwTerminate();
