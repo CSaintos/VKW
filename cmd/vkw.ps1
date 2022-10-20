@@ -16,6 +16,7 @@ if (Test-Path -Path "build\vkw" -PathType Container) {
 echo "compile"
 g++ $includes -c app\src\Instance.cpp -o bin\Instance.o -g
 g++ $includes -c app\src\Validation.cpp -o bin\Validation.o -g
+g++ $includes -c app\src\PhysicalDevice.cpp -o bin\PhysicalDevice.o -g
 
 echo "build"
 
@@ -29,7 +30,7 @@ if (-not(Test-Path -Path "build\vkw\lib" -PathType Container)) {
   New-Item -ItemType Directory -Path "build\vkw\lib" | Out-Null
 }
 
-ar -q build\vkw\lib\vkw.lib bin\Validation.o bin\Instance.o
+ar -q build\vkw\lib\vkw.lib bin\Validation.o bin\Instance.o bin\PhysicalDevice.o
 Copy-Item -Path "app\inc\*" -Destination "build\vkw\inc" -Recurse
 
 echo "obj-clean"
