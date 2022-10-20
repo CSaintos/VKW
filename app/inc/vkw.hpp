@@ -2,6 +2,7 @@
 #pragma once
 
 #include <vkw\Context.hpp>
+#include <vkw\Validation.hpp>
 #include <vkw\Instance.hpp>
-#include <vkw\QueueFamilyIndices.hpp>
+#include <vkw\PhysicalDevice.hpp>
 #include <vkw\SwapChainSupportDetails.hpp>

@@ -63,6 +63,7 @@ private:
   {
     vkw::Instance::createInstance(&m_context.instance, "Hello Triangle", (int[]){1, 0, 0}, getRequiredExtensions());
     vkw::Validation::setupDebugMessenger(&m_context.instance, &m_context.debug_messenger);
+    vkw::PhysicalDevice::pickPhysicalDevice(&m_context.instance, &m_context.physical_device);
   }
 
   void mainLoop()
