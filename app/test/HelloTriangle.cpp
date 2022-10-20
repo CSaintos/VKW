@@ -5,7 +5,10 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <glfw3native.h>
 
+#include <cstdint>
+
 #include <iostream>
+#include <vector>
 
 #include <vkw.hpp>
 
@@ -40,22 +43,26 @@ private:
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
   }
 
-  void createInstance()
+  std::vector<const char*> getRequiredExtensions()
   {
-    std::string app_name = "Hello Triangle";
-    const int version[3] = {1, 0, 0};
     uint32_t glfw_extension_count = 0;
-    const char **glfw_extensions;
+    const char **glfw_extensions = 
+      glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
-    glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+    std::vector<const char*> extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
 
-    vkw::Instance::createInstance(m_context.instance, 
-        app_name, version, glfw_extensions, glfw_extension_count);
+    if (vkw::Validation::enable_validation_layers)
+    {
+      extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
+    return extensions;
   }
 
   void initVulkan()
   {
-    createInstance();
+    vkw::Instance::createInstance(&m_context.instance, "Hello Triangle", (int[]){1, 0, 0}, getRequiredExtensions());
+    vkw::Validation::setupDebugMessenger(&m_context.instance, &m_context.debug_messenger);
   }
 
   void mainLoop()
@@ -68,6 +75,7 @@ private:
 
   void cleanup()
   {
+    vkw::Validation::destroyDebugUtilsMessengerEXT();
     vkw::Instance::destroyInstance();
 
     glfwDestroyWindow(m_window);

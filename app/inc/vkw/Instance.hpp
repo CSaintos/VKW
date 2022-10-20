@@ -6,6 +6,9 @@
 #include <cstdint>
 
 #include <string>
+#include <vector>
+
+#include "vkw\Validation.hpp"
 
 namespace vkw
 {
@@ -23,15 +26,16 @@ namespace vkw
      * @param app_name Name of app string
      * @param version Version of app int[3]
      * @param extensions Extensions for Vulkan (optional)
-     * @param extension_count Number of extensions provided (optional)
+     * -@param extension_count Number of extensions provided (optional)
      */
     static void createInstance
     (
-      VkInstance &vk_instance,
+      VkInstance *vk_instance,
       const std::string &app_name,
-      const int version[3],
-      const char **extensions = nullptr,
-      const uint32_t &extension_count = 0
+      const int (&version)[3],
+      const std::vector<const char*> &extensions = {}
+      //const char **extensions = nullptr,
+      // const uint32_t &extension_count = 0
     );
 
     /**
@@ -47,10 +51,10 @@ namespace vkw
     
     inline static std::string m_engine_name = "";
 
-    inline static VkInstance m_vk_instance;
+    inline static VkInstance *m_vk_instance = nullptr;
 
     /**
-     * @brief Instance constructor hiden
+     * @brief Instance constructor hidden
      */
     Instance();
   };
