@@ -64,6 +64,7 @@ private:
     vkw::Instance::createInstance(&m_context.instance, "Hello Triangle", (int[]){1, 0, 0}, getRequiredExtensions());
     vkw::Validation::setupDebugMessenger(&m_context.instance, &m_context.debug_messenger);
     vkw::PhysicalDevice::pickPhysicalDevice(&m_context.instance, &m_context.physical_device);
+    vkw::LogicalDevice::createLogicalDevice(&m_context.physical_device, &m_context.device, &m_context.graphics_queue);
   }
 
   void mainLoop()
@@ -76,6 +77,7 @@ private:
 
   void cleanup()
   {
+    vkw::LogicalDevice::destroyLogicalDevice();
     vkw::Validation::destroyDebugUtilsMessengerEXT();
     vkw::Instance::destroyInstance();
 

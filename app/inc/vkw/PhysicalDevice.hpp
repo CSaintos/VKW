@@ -29,8 +29,8 @@ namespace vkw
       VkInstance *vk_instance, 
       VkPhysicalDevice *physical_device
     );
+    static QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &device);
   private:
     static bool isDeviceSuitable(const VkPhysicalDevice &device);
-    static QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &device);
   };
 }
