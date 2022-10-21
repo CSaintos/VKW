@@ -5,6 +5,9 @@
 
 #include <cstdint>
 
+#include <vector>
+#include <set>
+
 #include "vkw\Validation.hpp"
 #include "vkw\PhysicalDevice.hpp"
 
@@ -15,15 +18,19 @@ namespace vkw
   public:
     static void createLogicalDevice
     (
-      VkPhysicalDevice *physical_device,
+      const VkPhysicalDevice &physical_device,
+      const VkSurfaceKHR &surface,
       VkDevice *logical_device,
-      VkQueue *graphics_queue
+      VkQueue &graphics_queue,
+      VkQueue &present_queue
     );
     static void destroyLogicalDevice();
   private:
-    static inline VkDeviceQueueCreateInfo m_queue_create_info{};
+    static inline std::vector<VkDeviceQueueCreateInfo> m_queue_create_infos;
     static inline VkPhysicalDeviceFeatures m_device_features{};
     static inline VkDeviceCreateInfo m_create_info{};
     static inline VkDevice *m_logical_device = nullptr;
+
+    LogicalDevice();
   };
 }

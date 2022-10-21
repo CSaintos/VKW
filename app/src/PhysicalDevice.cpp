@@ -3,12 +3,13 @@
 
 void vkw::PhysicalDevice::pickPhysicalDevice
 (
-  VkInstance *vk_instance,
-  VkPhysicalDevice *physical_device
+  const VkInstance &vk_instance,
+  VkPhysicalDevice &physical_device,
+  const VkSurfaceKHR &surface
 )
 {
   uint32_t device_count = 0;
-  vkEnumeratePhysicalDevices(*vk_instance, &device_count, nullptr);
+  vkEnumeratePhysicalDevices(vk_instance, &device_count, nullptr);
 
   if (device_count == 0)
   {
@@ -16,33 +17,38 @@ void vkw::PhysicalDevice::pickPhysicalDevice
   }
 
   std::vector<VkPhysicalDevice> devices(device_count);
-  vkEnumeratePhysicalDevices(*vk_instance, &device_count, devices.data());
+  vkEnumeratePhysicalDevices(vk_instance, &device_count, devices.data());
 
   for (const VkPhysicalDevice &device : devices)
   {
-    if (isDeviceSuitable(device))
+    if (isDeviceSuitable(device, surface))
     {
-      *physical_device = device;
+      physical_device = device;
       break;
     }
   }
 
-  if (*physical_device == VK_NULL_HANDLE)
+  if (physical_device == VK_NULL_HANDLE)
   {
     throw std::runtime_error("failed to find a suitable GPU!");
   }
 }
 
-bool vkw::PhysicalDevice::isDeviceSuitable(const VkPhysicalDevice &device)
+bool vkw::PhysicalDevice::isDeviceSuitable
+(
+  const VkPhysicalDevice &device,
+  const VkSurfaceKHR &surface
+)
 {
-  QueueFamilyIndices indices = findQueueFamilies(device);
+  QueueFamilyIndices indices = findQueueFamilies(device, surface);
 
   return indices.isComplete();
 }
 
 vkw::QueueFamilyIndices vkw::PhysicalDevice::findQueueFamilies
 (
-  const VkPhysicalDevice &device
+  const VkPhysicalDevice &device,
+  const VkSurfaceKHR &surface
 )
 {
   QueueFamilyIndices indices;
@@ -59,6 +65,14 @@ vkw::QueueFamilyIndices vkw::PhysicalDevice::findQueueFamilies
     if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT)
     {
       indices.graphics_family = i;
+    }
+
+    VkBool32 present_support = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &present_support);
+
+    if (present_support)
+    {
+      indices.present_family = i;
     }
 
     if (indices.isComplete())

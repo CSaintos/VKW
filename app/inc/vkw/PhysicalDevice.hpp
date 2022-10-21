@@ -26,11 +26,20 @@ namespace vkw
   public:
     static void pickPhysicalDevice
     (
-      VkInstance *vk_instance, 
-      VkPhysicalDevice *physical_device
+      const VkInstance &vk_instance, 
+      VkPhysicalDevice &physical_device,
+      const VkSurfaceKHR &surface
     );
-    static QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &device);
+    static QueueFamilyIndices findQueueFamilies
+    (
+      const VkPhysicalDevice &device,
+      const VkSurfaceKHR &surface
+    );
   private:
-    static bool isDeviceSuitable(const VkPhysicalDevice &device);
+    static bool isDeviceSuitable
+    (
+      const VkPhysicalDevice &device,
+      const VkSurfaceKHR &surface
+    );
   };
 }

@@ -102,8 +102,6 @@ VkResult vkw::Validation::createDebugUtilsMessengerEXT
 
 void vkw::Validation::destroyDebugUtilsMessengerEXT
 (
-  // VkInstance instance,
-  // VkDebugUtilsMessengerEXT debug_messenger,
   const VkAllocationCallbacks *p_allocator
 )
 {

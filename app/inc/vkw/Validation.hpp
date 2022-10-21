@@ -40,8 +40,6 @@ namespace vkw
 
     static void destroyDebugUtilsMessengerEXT
     (
-      // VkInstance instance,
-      // VkDebugUtilsMessengerEXT debug_messenger,
       const VkAllocationCallbacks *p_allocator = nullptr
     );
 
@@ -71,10 +69,8 @@ namespace vkw
 
     static VkResult createDebugUtilsMessengerEXT
     (
-      // VkInstance instance,
       const VkDebugUtilsMessengerCreateInfoEXT *p_create_info,
       const VkAllocationCallbacks *p_allocator = nullptr
-      // VkDebugUtilsMessengerEXT *p_debug_messenger
     );
 
   };
