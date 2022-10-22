@@ -116,6 +116,12 @@ private:
       m_context.present_queue
     );
     createSwapChain();
+    vkw::SwapChain::createImageViews
+      (
+        &m_context.swap_chain_image_views,
+        m_context.swap_chain_images,
+        m_context.swap_chain_image_format
+      );
   }
 
   void mainLoop()
@@ -128,6 +134,7 @@ private:
 
   void cleanup()
   {
+    vkw::SwapChain::destroyImageViews();
     vkw::SwapChain::destroySwapChain();
     vkw::LogicalDevice::destroyLogicalDevice();
     vkw::Validation::destroyDebugUtilsMessengerEXT();

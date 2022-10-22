@@ -36,17 +36,26 @@ namespace vkw
       VkDevice *logical_device,
       VkSwapchainKHR *swap_chain,
       std::vector<VkImage> &swap_chain_images,
-      VkFormat &swap_chain_format,
+      VkFormat &swap_chain_image_format,
       VkExtent2D &swap_chain_extent
     );
     static void destroySwapChain();
+    static void createImageViews
+    (
+      std::vector<VkImageView> *swap_chain_image_views,
+      const std::vector<VkImage> &swap_chain_images,
+      const VkFormat &swap_chain_image_format
+    );
+    static void destroyImageViews();
   private:
     SwapChain();
 
     inline static VkSwapchainCreateInfoKHR m_create_info{};
+    inline static VkImageViewCreateInfo m_image_view_create_info{};
 
     inline static VkDevice *m_logical_device = nullptr;
     inline static VkSwapchainKHR *m_swap_chain = nullptr;
+    inline static std::vector<VkImageView> *m_swap_chain_image_views = nullptr;
 
     static VkSurfaceFormatKHR chooseSwapSurfaceFormat
     (

@@ -235,3 +235,52 @@ void vkw::SwapChain::destroySwapChain()
 {
   vkDestroySwapchainKHR(*m_logical_device, *m_swap_chain, nullptr);
 }
+
+void vkw::SwapChain::createImageViews
+(
+  std::vector<VkImageView> *swap_chain_image_views,
+  const std::vector<VkImage> &swap_chain_images,
+  const VkFormat &swap_chain_image_format
+)
+{
+  swap_chain_image_views->resize(swap_chain_images.size());
+
+  m_image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  m_image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  m_image_view_create_info.format = swap_chain_image_format;
+  m_image_view_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  m_image_view_create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  m_image_view_create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  m_image_view_create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+  m_image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  m_image_view_create_info.subresourceRange.baseMipLevel = 0;
+  m_image_view_create_info.subresourceRange.levelCount = 1;
+  m_image_view_create_info.subresourceRange.baseArrayLayer = 0;
+  m_image_view_create_info.subresourceRange.layerCount = 1; 
+
+  for (size_t i = 0; i < swap_chain_images.size(); i++)
+  {
+    m_image_view_create_info.image = swap_chain_images[i];
+
+    if (vkCreateImageView
+      (
+        *m_logical_device,
+        &m_image_view_create_info, 
+        nullptr,
+        &(*swap_chain_image_views)[i]
+      ) != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create image views!");
+    }
+  }
+
+  m_swap_chain_image_views = swap_chain_image_views;
+}
+
+void vkw::SwapChain::destroyImageViews()
+{
+  for (VkImageView image_view : *m_swap_chain_image_views)
+  {
+    vkDestroyImageView(*m_logical_device, image_view, nullptr);
+  }
+}
