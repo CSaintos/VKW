@@ -34,8 +34,6 @@ namespace vkw
       const std::string &app_name,
       const int (&version)[3],
       const std::vector<const char*> &extensions = {}
-      //const char **extensions = nullptr,
-      // const uint32_t &extension_count = 0
     );
 
     /**
@@ -44,6 +42,10 @@ namespace vkw
     static void destroyInstance();
 
   private:
+    /**
+     * @brief Instance constructor hidden
+     */
+    Instance();
     /// @brief Info about app
     inline static VkApplicationInfo m_app_info{};
     /// @brief Instance creation info
@@ -52,10 +54,5 @@ namespace vkw
     inline static std::string m_engine_name = "";
 
     inline static VkInstance *m_vk_instance = nullptr;
-
-    /**
-     * @brief Instance constructor hidden
-     */
-    Instance();
   };
 }

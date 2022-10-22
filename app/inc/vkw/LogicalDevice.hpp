@@ -9,6 +9,7 @@
 #include <set>
 
 #include "vkw\Validation.hpp"
+#include "vkw\QueueFamilyIndices.hpp"
 #include "vkw\PhysicalDevice.hpp"
 
 namespace vkw 

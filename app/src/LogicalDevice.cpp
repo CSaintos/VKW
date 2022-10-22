@@ -11,7 +11,7 @@ void vkw::LogicalDevice::createLogicalDevice
 )
 {
   QueueFamilyIndices indices = 
-    PhysicalDevice::findQueueFamilies(physical_device, surface);
+    QueueFamilyIndices::findQueueFamilies(physical_device, surface);
   
   std::set<uint32_t> unique_queue_families = 
   {
@@ -34,7 +34,9 @@ void vkw::LogicalDevice::createLogicalDevice
   m_create_info.queueCreateInfoCount = static_cast<uint32_t>(m_queue_create_infos.size());
   m_create_info.pQueueCreateInfos = m_queue_create_infos.data();
   m_create_info.pEnabledFeatures = &m_device_features;
-  m_create_info.enabledExtensionCount = 0;
+  m_create_info.enabledExtensionCount = 
+    static_cast<uint32_t>(PhysicalDevice::device_extensions.size());
+  m_create_info.ppEnabledExtensionNames = PhysicalDevice::device_extensions.data();
 
   if (Validation::enable_validation_layers)
   {

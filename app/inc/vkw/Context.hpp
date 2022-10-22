@@ -20,6 +20,9 @@ namespace vkw
     VkSurfaceKHR surface;
     VkSwapchainKHR swap_chain;
     std::vector<VkImage> swap_chain_images;
+    VkFormat swap_chain_image_format;
+    VkExtent2D swap_chain_extent;
+    std::vector<VkImageView> swap_chain_image_views;
     VkRenderPass render_pass;
     VkPipelineLayout pipeline_layout;
     VkPipeline graphics_pipeline;

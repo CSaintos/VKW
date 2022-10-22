@@ -5,34 +5,26 @@
 
 #include <cstdint>
 
+#include <set>
+#include <string>
 #include <vector>
-#include <optional>
+
+#include "vkw\QueueFamilyIndices.hpp"
+#include "vkw\SwapChain.hpp"
 
 namespace vkw
 {
-  struct QueueFamilyIndices
-  {
-    std::optional<uint32_t> graphics_family;
-    std::optional<uint32_t> present_family;
-
-    bool isComplete()
-    {
-      return graphics_family.has_value() && present_family.has_value();
-    }
-  };
-
   class PhysicalDevice
   {
   public:
+    static inline const std::vector<const char*> device_extensions = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+
     static void pickPhysicalDevice
     (
       const VkInstance &vk_instance, 
       VkPhysicalDevice &physical_device,
-      const VkSurfaceKHR &surface
-    );
-    static QueueFamilyIndices findQueueFamilies
-    (
-      const VkPhysicalDevice &device,
       const VkSurfaceKHR &surface
     );
   private:
@@ -41,5 +33,6 @@ namespace vkw
       const VkPhysicalDevice &device,
       const VkSurfaceKHR &surface
     );
+    static bool checkDeviceExtensionSupport(const VkPhysicalDevice &device);
   };
 }

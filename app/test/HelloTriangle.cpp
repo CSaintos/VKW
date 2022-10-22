@@ -43,14 +43,6 @@ private:
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
   }
 
-  void createSurface()
-  {
-    if (glfwCreateWindowSurface(m_context.instance, m_window, nullptr, &m_context.surface) != VK_SUCCESS)
-    {
-      throw std::runtime_error("failed to create window surface!");
-    }
-  }
-
   std::vector<const char*> getRequiredExtensions()
   {
     uint32_t glfw_extension_count = 0;
@@ -67,10 +59,47 @@ private:
     return extensions;
   }
 
+  void createSurface()
+  {
+    if (glfwCreateWindowSurface(m_context.instance, m_window, nullptr, &m_context.surface) != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create window surface!");
+    }
+  }
+
+  void createSwapChain()
+  {
+    int width_buffer_size, height_buffer_size;
+    glfwGetFramebufferSize(m_window, &width_buffer_size, &height_buffer_size);
+
+    vkw::SwapChain::createSwapChain
+    (
+      m_context.physical_device,
+      m_context.surface,
+      width_buffer_size,
+      height_buffer_size,
+      &m_context.device,
+      &m_context.swap_chain,
+      m_context.swap_chain_images,
+      m_context.swap_chain_image_format,
+      m_context.swap_chain_extent
+    );
+  }
+
   void initVulkan()
   {
-    vkw::Instance::createInstance(&m_context.instance, "Hello Triangle", (int[]){1, 0, 0}, getRequiredExtensions());
-    vkw::Validation::setupDebugMessenger(&m_context.instance, &m_context.debug_messenger);
+    vkw::Instance::createInstance
+    (
+      &m_context.instance, 
+      "Hello Triangle", 
+      (int[]){1, 0, 0}, 
+      getRequiredExtensions()
+    );
+    vkw::Validation::setupDebugMessenger
+    (
+      &m_context.instance, 
+      &m_context.debug_messenger
+    );
     createSurface();
     vkw::PhysicalDevice::pickPhysicalDevice
     (
@@ -86,6 +115,7 @@ private:
       m_context.graphics_queue,
       m_context.present_queue
     );
+    createSwapChain();
   }
 
   void mainLoop()
@@ -98,6 +128,7 @@ private:
 
   void cleanup()
   {
+    vkw::SwapChain::destroySwapChain();
     vkw::LogicalDevice::destroyLogicalDevice();
     vkw::Validation::destroyDebugUtilsMessengerEXT();
     vkDestroySurfaceKHR(m_context.instance, m_context.surface, nullptr);
