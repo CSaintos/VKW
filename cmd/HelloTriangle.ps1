@@ -6,15 +6,23 @@ Set-Variable -Name "links" -Value "-Llib\Vulkan\Lib", "-Lapp\test\lib\GLFW", `
 Set-Variable -Name "defines" -Value ""
 
 echo "clean"
-if (Test-Path -Path "build\HelloTriangle.exe" -PathType Leaf) {
-  rm build\HelloTriangle.exe
+if (Test-Path -Path "build\HelloTriangle\HelloTriangle.exe" -PathType Leaf) {
+  rm build\HelloTriangle -Recurse
 }
 
 echo "compile"
-g++ $includes -c app\test\HelloTriangle.cpp -o bin\helloTriangle.o -g
+g++ $includes -c app\test\HelloTriangle\HelloTriangle.cpp -o bin\helloTriangle.o -g
 
 echo "build"
-g++ bin\helloTriangle.o $links -o build\HelloTriangle.exe -g
+if (-not(Test-Path -Path "build\HelloTriangle" -PathType Container)) {
+  New-Item -ItemType Directory -Path "build\HelloTriangle" | Out-Null
+}
+
+g++ bin\helloTriangle.o $links -o build\HelloTriangle\HelloTriangle.exe -g
+
+echo "compile shaders"
+glslc app\test\HelloTriangle\Base.vert -o build\HelloTriangle\vert.spv
+glslc app\test\HelloTriangle\Base.frag -o build\HelloTriangle\frag.spv
 
 echo "obj-clean"
 rm bin\*.o

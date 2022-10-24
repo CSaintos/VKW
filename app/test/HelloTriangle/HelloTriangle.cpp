@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include <vkw.hpp>
 
@@ -86,6 +87,19 @@ private:
     );
   }
 
+  void createGraphicsPipeline()
+  {
+    std::vector<std::string> vert_shader_files = {"vert.spv"};
+    std::vector<std::string> frag_shader_files = {"frag.spv"};
+
+    vkw::GraphicsPipeline::createGraphicsPipeline
+    (
+      m_context.device,
+      vert_shader_files,
+      frag_shader_files
+    );
+  }
+
   void initVulkan()
   {
     vkw::Instance::createInstance
@@ -122,6 +136,7 @@ private:
         m_context.swap_chain_images,
         m_context.swap_chain_image_format
       );
+    createGraphicsPipeline();
   }
 
   void mainLoop()

@@ -20,6 +20,7 @@ g++ $includes -c app\src\QueueFamilyIndices.cpp -o bin\QueueFamilyIndices.o -g
 g++ $includes -c app\src\PhysicalDevice.cpp -o bin\PhysicalDevice.o -g
 g++ $includes -c app\src\LogicalDevice.cpp -o bin\LogicalDevice.o -g
 g++ $includes -c app\src\SwapChain.cpp -o bin\SwapChain.o -g
+g++ $includes -c app\src\GraphicsPipeline.cpp -o bin\GraphicsPipeline.o -g
 
 echo "build"
 
@@ -34,7 +35,7 @@ if (-not(Test-Path -Path "build\vkw\lib" -PathType Container)) {
 }
 
 ar -q build\vkw\lib\vkw.lib bin\Validation.o bin\Instance.o bin\QueueFamilyIndices.o `
-bin\PhysicalDevice.o bin\LogicalDevice.o bin\SwapChain.o
+bin\PhysicalDevice.o bin\LogicalDevice.o bin\SwapChain.o bin\GraphicsPipeline.o
 Copy-Item -Path "app\inc\*" -Destination "build\vkw\inc" -Recurse
 
 echo "obj-clean"
