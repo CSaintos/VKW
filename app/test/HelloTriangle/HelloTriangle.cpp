@@ -146,6 +146,14 @@ private:
       m_context.swap_chain_image_format
     );
     createGraphicsPipeline();
+    vkw::Framebuffer::createFramebuffers
+    (
+      &m_context.device,
+      &m_context.swap_chain_framebuffers,
+      m_context.swap_chain_image_views,
+      m_context.render_pass,
+      m_context.swap_chain_extent
+    );
   }
 
   void mainLoop()
@@ -158,6 +166,7 @@ private:
 
   void cleanup()
   {
+    vkw::Framebuffer::destroyFramebuffers();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();
     vkw::SwapChain::destroyImageViews();
