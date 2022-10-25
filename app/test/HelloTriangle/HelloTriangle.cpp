@@ -95,7 +95,9 @@ private:
     vkw::GraphicsPipeline::createGraphicsPipeline
     (
       &m_context.device,
+      &m_context.render_pass,
       &m_context.pipeline_layout,
+      &m_context.graphics_pipeline,
       vert_shader_files,
       frag_shader_files
     );
@@ -107,7 +109,7 @@ private:
     (
       &m_context.instance, 
       "Hello Triangle", 
-      (int[]){1, 0, 0}, 
+      (int[]){1, 0, 0},
       getRequiredExtensions()
     );
     vkw::Validation::setupDebugMessenger
@@ -132,11 +134,17 @@ private:
     );
     createSwapChain();
     vkw::SwapChain::createImageViews
-      (
-        &m_context.swap_chain_image_views,
-        m_context.swap_chain_images,
-        m_context.swap_chain_image_format
-      );
+    (
+      &m_context.swap_chain_image_views,
+      m_context.swap_chain_images,
+      m_context.swap_chain_image_format
+    );
+    vkw::RenderPass::createRenderPass
+    (
+      &m_context.device,
+      &m_context.render_pass,
+      m_context.swap_chain_image_format
+    );
     createGraphicsPipeline();
   }
 
@@ -151,6 +159,7 @@ private:
   void cleanup()
   {
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
+    vkw::RenderPass::destroyRenderPass();
     vkw::SwapChain::destroyImageViews();
     vkw::SwapChain::destroySwapChain();
     vkw::LogicalDevice::destroyLogicalDevice();

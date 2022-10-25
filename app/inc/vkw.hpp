@@ -10,4 +10,5 @@
 #include <vkw\PhysicalDevice.hpp>
 #include <vkw\LogicalDevice.hpp>
 #include <vkw\SwapChain.hpp>
+#include <vkw\RenderPass.hpp>
 #include <vkw\GraphicsPipeline.hpp>

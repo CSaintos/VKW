@@ -50,7 +50,9 @@ VkShaderModule vkw::GraphicsPipeline::createShaderModule
 void vkw::GraphicsPipeline::createGraphicsPipeline
 (
   const VkDevice *logical_device,
+  const VkRenderPass *render_pass,
   VkPipelineLayout *pipeline_layout,
+  VkPipeline *pipeline,
   const std::vector<std::string> vert_shader_files,
   const std::vector<std::string> frag_shader_files
 )
@@ -71,8 +73,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
     vert_shader_stage_info.pName = "main";
 
     m_shader_stages.push_back(vert_shader_stage_info);
-
-    vkDestroyShaderModule(*logical_device, vert_shader_module, nullptr);
+    m_shader_modules.push_back(vert_shader_module);
   }
 
   for (std::string frag_shader_file : frag_shader_files)
@@ -91,8 +92,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
     frag_shader_stage_info.pName = "main";
 
     m_shader_stages.push_back(frag_shader_stage_info);
-
-    vkDestroyShaderModule(*logical_device, frag_shader_module, nullptr);
+    m_shader_modules.push_back(frag_shader_module);
   }
 
   // Dynamic State fixed function
@@ -105,10 +105,10 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
     VK_DYNAMIC_STATE_SCISSOR
   };
 
-  VkPipelineDynamicStateCreateInfo dynamic_state{};
-  dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-  dynamic_state.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
-  dynamic_state.pDynamicStates = dynamic_states.data();
+  VkPipelineDynamicStateCreateInfo dynamic_state_info{};
+  dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+  dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
+  dynamic_state_info.pDynamicStates = dynamic_states.data();
 
   // Vertex Input State Fixed Function
   VkPipelineVertexInputStateCreateInfo vertex_input_info{};
@@ -209,10 +209,49 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
   }
 
   m_logical_device = logical_device;
+  m_render_pass = render_pass;
   m_pipeline_layout = pipeline_layout;
+  m_pipeline = pipeline;
+
+  pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  pipeline_info.stageCount = m_shader_stages.size();
+  pipeline_info.pStages = m_shader_stages.data();
+  pipeline_info.pVertexInputState = &vertex_input_info;
+  pipeline_info.pViewportState = &viewport_state_info;
+  pipeline_info.pRasterizationState = &rasterization_info;
+  pipeline_info.pMultisampleState = &multisampling_info;
+  pipeline_info.pDepthStencilState = nullptr; // Optional
+  pipeline_info.pColorBlendState = &color_blend_info;
+  pipeline_info.pDynamicState = &dynamic_state_info;
+  pipeline_info.layout = *m_pipeline_layout;
+  pipeline_info.renderPass = *m_render_pass;
+  pipeline_info.subpass = 0; // index of sub pass where graphics pipeline is used.
+  // Vulkan allows you to create a new graphics pipeline by deriving
+  // from an existing pipeline.
+  pipeline_info.basePipelineHandle = VK_NULL_HANDLE; // Optional
+  pipeline_info.basePipelineIndex = -1; // Optional
+
+  if (vkCreateGraphicsPipelines
+    (
+      *m_logical_device,
+      VK_NULL_HANDLE,
+      1,
+      &pipeline_info,
+      nullptr,
+      m_pipeline
+    ) != VK_SUCCESS)
+  {
+    throw std::runtime_error("failed to create graphics pipeline!");
+  }
+
+  for (VkShaderModule shader_module : m_shader_modules)
+  {
+    vkDestroyShaderModule(*m_logical_device, shader_module, nullptr);
+  }
 }
 
 void vkw::GraphicsPipeline::destroyGraphicsPipeline()
 {
+  vkDestroyPipeline(*m_logical_device, *m_pipeline, nullptr);
   vkDestroyPipelineLayout(*m_logical_device, *m_pipeline_layout, nullptr);
 }
