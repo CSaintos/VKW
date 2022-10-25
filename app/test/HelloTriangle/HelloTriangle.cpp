@@ -154,6 +154,13 @@ private:
       m_context.render_pass,
       m_context.swap_chain_extent
     );
+    vkw::Command::createCommandPool
+    (
+      &m_context.device,
+      &m_context.command_pool,
+      m_context.physical_device,
+      m_context.surface
+    );
   }
 
   void mainLoop()
@@ -166,6 +173,7 @@ private:
 
   void cleanup()
   {
+    vkw::Command::destroyCommandPool();
     vkw::Framebuffer::destroyFramebuffers();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();

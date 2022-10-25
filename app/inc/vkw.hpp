@@ -13,3 +13,4 @@
 #include <vkw\RenderPass.hpp>
 #include <vkw\GraphicsPipeline.hpp>
 #include <vkw\Framebuffer.hpp>
+#include <vkw\Command.hpp>
