@@ -49,7 +49,8 @@ VkShaderModule vkw::GraphicsPipeline::createShaderModule
 
 void vkw::GraphicsPipeline::createGraphicsPipeline
 (
-  const VkDevice &logical_device,
+  const VkDevice *logical_device,
+  VkPipelineLayout *pipeline_layout,
   const std::vector<std::string> vert_shader_files,
   const std::vector<std::string> frag_shader_files
 )
@@ -59,7 +60,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
     VkShaderModule vert_shader_module =
       createShaderModule
       (
-        logical_device,
+        *logical_device,
         readFile(vert_shader_file)
       );
 
@@ -71,7 +72,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
 
     m_shader_stages.push_back(vert_shader_stage_info);
 
-    vkDestroyShaderModule(logical_device, vert_shader_module, nullptr);
+    vkDestroyShaderModule(*logical_device, vert_shader_module, nullptr);
   }
 
   for (std::string frag_shader_file : frag_shader_files)
@@ -79,7 +80,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
     VkShaderModule frag_shader_module =
       createShaderModule
       (
-        logical_device,
+        *logical_device,
         readFile(frag_shader_file)
       );
 
@@ -91,6 +92,127 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
 
     m_shader_stages.push_back(frag_shader_stage_info);
 
-    vkDestroyShaderModule(logical_device, frag_shader_module, nullptr);
+    vkDestroyShaderModule(*logical_device, frag_shader_module, nullptr);
   }
+
+  // Dynamic State fixed function
+  // used to keep out the viewport and line and blend constants
+  // whenever the pipeline is recreated, so therefore they need to be
+  // specified during drawing time.
+  std::vector<VkDynamicState> dynamic_states = 
+  {
+    VK_DYNAMIC_STATE_VIEWPORT,
+    VK_DYNAMIC_STATE_SCISSOR
+  };
+
+  VkPipelineDynamicStateCreateInfo dynamic_state{};
+  dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+  dynamic_state.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
+  dynamic_state.pDynamicStates = dynamic_states.data();
+
+  // Vertex Input State Fixed Function
+  VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+  vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertex_input_info.vertexBindingDescriptionCount = 0;
+  vertex_input_info.pVertexBindingDescriptions = nullptr; // Optional
+  vertex_input_info.vertexAttributeDescriptionCount = 0;
+  vertex_input_info.pVertexAttributeDescriptions = nullptr; // Optional
+
+  // Input Assembly describes what kind of geometry will be drawn
+  // from the vertices and if primitive restart should be enabled.
+  VkPipelineInputAssemblyStateCreateInfo input_assembly{};
+  input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  input_assembly.primitiveRestartEnable = VK_FALSE;
+
+  VkPipelineViewportStateCreateInfo viewport_state_info{};
+  viewport_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+  viewport_state_info.viewportCount = 1;
+  viewport_state_info.scissorCount = 1;
+
+  VkPipelineRasterizationStateCreateInfo rasterization_info{};
+  rasterization_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+  rasterization_info.depthClampEnable = VK_FALSE;
+  rasterization_info.rasterizerDiscardEnable = VK_FALSE; // if enabled, disables any output to frame buffer
+  rasterization_info.polygonMode = VK_POLYGON_MODE_FILL; // fill with fragments
+  rasterization_info.lineWidth = 1.0f; // describes thickness of lines, in terms of # of frags. Any line thicker than 1.0f requires to enable wideLines GPU features.
+  rasterization_info.cullMode = VK_CULL_MODE_BACK_BIT;
+  rasterization_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+  rasterization_info.depthBiasEnable = VK_FALSE;
+  rasterization_info.depthBiasConstantFactor = 0.0f; // Optional
+  rasterization_info.depthBiasClamp = 0.0f; // Optional
+  rasterization_info.depthBiasSlopeFactor = 0.0f; // Optional
+
+  // Configuring multi-sampling
+  //  one of the ways to perform anti-aliasing.
+  //  works by combinging frag shader results of mutiple polygons that rasterize to 
+  //  the same pixel. Aliasing mostly occurs along edges. It doesn't need to run the frag
+  //  shader mutliple times if only one polygon maps to a pixel.
+  VkPipelineMultisampleStateCreateInfo multisampling_info{};
+  multisampling_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+  multisampling_info.sampleShadingEnable = VK_FALSE;
+  multisampling_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+  multisampling_info.minSampleShading = 1.0f; // Optional
+  multisampling_info.pSampleMask = nullptr; // Optional
+  multisampling_info.alphaToCoverageEnable = VK_FALSE; // Optional
+  multisampling_info.alphaToOneEnable = VK_FALSE; // Optional
+
+  // Section for Depth and Stencil testing 
+  //
+
+  // Color blending
+  // Two ways to achieve this:
+  // - Mix the old and new value to produce a final color
+  // - Combine the old and new value using a bitwise operation
+  // Two structs to configure color blending:
+  // - VkPipelineColorBlendAttachmentState : contains config per attached framebuffer
+  // - VkPipelineColorBlendStateCreateInfo : contains the global color blending settings.
+  VkPipelineColorBlendAttachmentState color_blend_attachment{};
+  color_blend_attachment.colorWriteMask = 
+    VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+    VK_COLOR_COMPONENT_A_BIT;
+  color_blend_attachment.blendEnable = VK_FALSE;
+  color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+  color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+  color_blend_attachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
+  color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+  color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+  color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+  VkPipelineColorBlendStateCreateInfo color_blend_info{};
+  color_blend_info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  color_blend_info.logicOpEnable = VK_FALSE;
+  color_blend_info.logicOp = VK_LOGIC_OP_COPY; // Optional
+  color_blend_info.attachmentCount = 1;
+  color_blend_info.pAttachments = &color_blend_attachment;
+  color_blend_info.blendConstants[0] = 0.0f; // Optional
+  color_blend_info.blendConstants[1] = 0.0f; // Optional
+  color_blend_info.blendConstants[2] = 0.0f; // Optional
+  color_blend_info.blendConstants[3] = 0.0f; // Optional
+
+  VkPipelineLayoutCreateInfo pipeline_layout_info{};
+  pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  pipeline_layout_info.setLayoutCount = 0; // Optional
+  pipeline_layout_info.pSetLayouts = nullptr; // Optional
+  pipeline_layout_info.pushConstantRangeCount = 0; // Optional
+  pipeline_layout_info.pPushConstantRanges = nullptr; // Optional
+
+  if (vkCreatePipelineLayout
+    (
+      *logical_device, 
+      &pipeline_layout_info, 
+      nullptr, 
+      pipeline_layout
+    ) != VK_SUCCESS)
+  {
+    throw std::runtime_error("failed to create pipeline layout!");
+  }
+
+  m_logical_device = logical_device;
+  m_pipeline_layout = pipeline_layout;
+}
+
+void vkw::GraphicsPipeline::destroyGraphicsPipeline()
+{
+  vkDestroyPipelineLayout(*m_logical_device, *m_pipeline_layout, nullptr);
 }

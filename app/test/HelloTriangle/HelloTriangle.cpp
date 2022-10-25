@@ -94,7 +94,8 @@ private:
 
     vkw::GraphicsPipeline::createGraphicsPipeline
     (
-      m_context.device,
+      &m_context.device,
+      &m_context.pipeline_layout,
       vert_shader_files,
       frag_shader_files
     );
@@ -149,6 +150,7 @@ private:
 
   void cleanup()
   {
+    vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::SwapChain::destroyImageViews();
     vkw::SwapChain::destroySwapChain();
     vkw::LogicalDevice::destroyLogicalDevice();
