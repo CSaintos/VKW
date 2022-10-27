@@ -3,10 +3,10 @@
 
 void vkw::Command::createCommandPool
 (
-  const VkDevice *logical_device,
+  VkDevice *logical_device,
   VkCommandPool *command_pool,
-  const VkPhysicalDevice &physical_device,
-  const VkSurfaceKHR &surface
+  VkPhysicalDevice &physical_device,
+  VkSurfaceKHR &surface
 )
 {
   QueueFamilyIndices queue_family_indices = 
@@ -49,11 +49,14 @@ void vkw::Command::destroyCommandPool()
   vkDestroyCommandPool(*m_logical_device, *m_command_pool, nullptr);
 }
 
-void vkw::Command::createCommandBuffer
+void vkw::Command::createCommandBuffers
 (
-  VkCommandBuffer *command_buffer
+  std::vector<VkCommandBuffer> &command_buffers,
+  const int &flight_frame_count
 )
 {
+  command_buffers.resize(flight_frame_count);
+
   VkCommandBufferAllocateInfo alloc_info{};
   alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   alloc_info.commandPool = *m_command_pool;
@@ -66,13 +69,13 @@ void vkw::Command::createCommandBuffer
   be called from primary cmd buffers.
   */
   alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  alloc_info.commandBufferCount = 1;
+  alloc_info.commandBufferCount = (uint32_t) flight_frame_count;
 
   if (vkAllocateCommandBuffers
     (
       *m_logical_device,
       &alloc_info,
-      command_buffer
+      command_buffers.data()
     ) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to allocate command buffers!");
@@ -83,10 +86,10 @@ void vkw::Command::recordCommandBuffer
 (
   VkCommandBuffer command_buffer,
   uint32_t image_idx,
-  const VkRenderPass &render_pass,
-  const std::vector<VkFramebuffer> &swap_chain_framebuffers,
-  const VkExtent2D &swap_chain_extent,
-  const VkPipeline &graphics_pipeline
+  VkRenderPass &render_pass,
+  std::vector<VkFramebuffer> &swapchain_framebuffers,
+  VkExtent2D &swap_chain_extent,
+  VkPipeline &graphics_pipeline
 )
 {
   VkCommandBufferBeginInfo begin_info{};
@@ -118,7 +121,7 @@ void vkw::Command::recordCommandBuffer
   render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   render_pass_info.renderPass = render_pass;
   // binds the framebuffer for the swapchain image we want to draw to.
-  render_pass_info.framebuffer = swap_chain_framebuffers[image_idx];
+  render_pass_info.framebuffer = swapchain_framebuffers[image_idx];
   render_pass_info.renderArea.offset = {0, 0};
   render_pass_info.renderArea.extent = swap_chain_extent;
   /*

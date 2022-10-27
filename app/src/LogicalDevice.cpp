@@ -3,8 +3,8 @@
 
 void vkw::LogicalDevice::createLogicalDevice
 (
-  const VkPhysicalDevice &physical_device,
-  const VkSurfaceKHR &surface,
+  VkPhysicalDevice &physical_device,
+  VkSurfaceKHR &surface,
   VkDevice *logical_device,
   VkQueue &graphics_queue,
   VkQueue &present_queue
@@ -19,6 +19,7 @@ void vkw::LogicalDevice::createLogicalDevice
     indices.present_family.value()
   };
 
+  std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
   float queue_priority = 1.0f;
   for (uint32_t queue_family : unique_queue_families)
   {
@@ -27,28 +28,31 @@ void vkw::LogicalDevice::createLogicalDevice
     queue_create_info.queueFamilyIndex = queue_family;
     queue_create_info.queueCount = 1;
     queue_create_info.pQueuePriorities = &queue_priority;
-    m_queue_create_infos.push_back(queue_create_info);
+    queue_create_infos.push_back(queue_create_info);
   }
 
-  m_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  m_create_info.queueCreateInfoCount = static_cast<uint32_t>(m_queue_create_infos.size());
-  m_create_info.pQueueCreateInfos = m_queue_create_infos.data();
-  m_create_info.pEnabledFeatures = &m_device_features;
-  m_create_info.enabledExtensionCount = 
+  VkPhysicalDeviceFeatures device_features{};
+
+  VkDeviceCreateInfo logical_device_info{};
+  logical_device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  logical_device_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
+  logical_device_info.pQueueCreateInfos = queue_create_infos.data();
+  logical_device_info.pEnabledFeatures = &device_features;
+  logical_device_info.enabledExtensionCount = 
     static_cast<uint32_t>(PhysicalDevice::device_extensions.size());
-  m_create_info.ppEnabledExtensionNames = PhysicalDevice::device_extensions.data();
+  logical_device_info.ppEnabledExtensionNames = PhysicalDevice::device_extensions.data();
 
   if (Validation::enable_validation_layers)
   {
-    m_create_info.enabledLayerCount = static_cast<uint32_t>(Validation::validation_layers.size());
-    m_create_info.ppEnabledLayerNames = Validation::validation_layers.data();
+    logical_device_info.enabledLayerCount = static_cast<uint32_t>(Validation::validation_layers.size());
+    logical_device_info.ppEnabledLayerNames = Validation::validation_layers.data();
   }
   else
   {
-    m_create_info.enabledLayerCount = 0;
+    logical_device_info.enabledLayerCount = 0;
   }
 
-  if (vkCreateDevice(physical_device, &m_create_info, nullptr, logical_device) != VK_SUCCESS)
+  if (vkCreateDevice(physical_device, &logical_device_info, nullptr, logical_device) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to create logical device!");
   }

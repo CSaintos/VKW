@@ -27,15 +27,15 @@ namespace vkw
   public:
     static void createFramebuffers
     (
-      const VkDevice *logical_device,
-      std::vector<VkFramebuffer> *swap_chain_framebuffers,
-      const std::vector<VkImageView> &swap_chain_image_views,
+      VkDevice *logical_device,
+      std::vector<VkFramebuffer> *swapchain_framebuffers,
+      const std::vector<VkImageView> &swapchain_image_views,
       const VkRenderPass &render_pass,
-      const VkExtent2D &swap_chain_extent
+      const VkExtent2D &swapchain_extent
     );
     static void destroyFramebuffers();
   private:
-    inline static const VkDevice *m_logical_device = nullptr;
-    inline static std::vector<VkFramebuffer> *m_swap_chain_framebuffers = nullptr;
+    inline static VkDevice *m_logical_device = nullptr;
+    inline static std::vector<VkFramebuffer> *m_swapchain_framebuffers = nullptr;
   };
 }

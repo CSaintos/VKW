@@ -21,8 +21,8 @@ namespace vkw
 
     static QueueFamilyIndices findQueueFamilies
     (
-      const VkPhysicalDevice &device,
-      const VkSurfaceKHR &surface
+      const VkPhysicalDevice &physical_device,
+      VkSurfaceKHR &surface
     );
   };
 }

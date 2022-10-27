@@ -34,6 +34,8 @@ private:
   const uint32_t WIDTH = 800;
   const uint32_t HEIGHT = 600;
 
+  const int MAX_FRAMES_IN_FLIGHT = 2;
+
   void initWindow()
   {
     glfwInit();
@@ -73,17 +75,17 @@ private:
     int width_buffer_size, height_buffer_size;
     glfwGetFramebufferSize(m_window, &width_buffer_size, &height_buffer_size);
 
-    vkw::SwapChain::createSwapChain
+    vkw::Swapchain::createSwapchain
     (
       m_context.physical_device,
       m_context.surface,
       width_buffer_size,
       height_buffer_size,
-      &m_context.device,
-      &m_context.swap_chain,
-      m_context.swap_chain_images,
-      m_context.swap_chain_image_format,
-      m_context.swap_chain_extent
+      &m_context.logical_device,
+      &m_context.swapchain,
+      m_context.swapchain_images,
+      m_context.swapchain_image_format,
+      m_context.swapchain_extent
     );
   }
 
@@ -94,7 +96,7 @@ private:
 
     vkw::GraphicsPipeline::createGraphicsPipeline
     (
-      &m_context.device,
+      &m_context.logical_device,
       &m_context.render_pass,
       &m_context.pipeline_layout,
       &m_context.graphics_pipeline,
@@ -128,38 +130,51 @@ private:
     (
       m_context.physical_device, 
       m_context.surface, 
-      &m_context.device, 
+      &m_context.logical_device, 
       m_context.graphics_queue,
       m_context.present_queue
     );
     createSwapChain();
-    vkw::SwapChain::createImageViews
+    vkw::Swapchain::createImageViews
     (
-      &m_context.swap_chain_image_views,
-      m_context.swap_chain_images,
-      m_context.swap_chain_image_format
+      &m_context.swapchain_image_views,
+      m_context.swapchain_images,
+      m_context.swapchain_image_format
     );
     vkw::RenderPass::createRenderPass
     (
-      &m_context.device,
+      &m_context.logical_device,
       &m_context.render_pass,
-      m_context.swap_chain_image_format
+      m_context.swapchain_image_format
     );
     createGraphicsPipeline();
     vkw::Framebuffer::createFramebuffers
     (
-      &m_context.device,
-      &m_context.swap_chain_framebuffers,
-      m_context.swap_chain_image_views,
+      &m_context.logical_device,
+      &m_context.swapchain_framebuffers,
+      m_context.swapchain_image_views,
       m_context.render_pass,
-      m_context.swap_chain_extent
+      m_context.swapchain_extent
     );
     vkw::Command::createCommandPool
     (
-      &m_context.device,
+      &m_context.logical_device,
       &m_context.command_pool,
       m_context.physical_device,
       m_context.surface
+    );
+    vkw::Command::createCommandBuffers
+    (
+      m_context.command_buffers,
+      MAX_FRAMES_IN_FLIGHT
+    );
+    vkw::Synchronization::createSyncObjects
+    (
+      &m_context.logical_device,
+      &m_context.image_available_semaphores,
+      &m_context.render_finished_semaphores,
+      &m_context.in_flight_fences,
+      &MAX_FRAMES_IN_FLIGHT
     );
   }
 
@@ -168,17 +183,38 @@ private:
     while (!glfwWindowShouldClose(m_window))
     {
       glfwPollEvents();
+      vkw::Presentation::drawFrame
+      (
+        m_context.logical_device,
+        m_context.in_flight_fences,
+        m_context.swapchain,
+        m_context.image_available_semaphores,
+        m_context.render_finished_semaphores,
+        m_context.command_buffers,
+        m_context.render_pass,
+        m_context.swapchain_framebuffers,
+        m_context.swapchain_extent,
+        m_context.graphics_pipeline,
+        m_context.graphics_queue,
+        m_context.present_queue,
+        m_context.current_frame,
+        m_context.framebuffer_resized,
+        MAX_FRAMES_IN_FLIGHT        
+      );
     }
+
+    vkDeviceWaitIdle(m_context.logical_device);
   }
 
   void cleanup()
   {
+    vkw::Synchronization::destroySyncObjects();
     vkw::Command::destroyCommandPool();
     vkw::Framebuffer::destroyFramebuffers();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();
-    vkw::SwapChain::destroyImageViews();
-    vkw::SwapChain::destroySwapChain();
+    vkw::Swapchain::destroyImageViews();
+    vkw::Swapchain::destroySwapchain();
     vkw::LogicalDevice::destroyLogicalDevice();
     vkw::Validation::destroyDebugUtilsMessengerEXT();
     vkDestroySurfaceKHR(m_context.instance, m_context.surface, nullptr);

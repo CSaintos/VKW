@@ -1,4 +1,4 @@
-// SwapChain.hpp
+// Swapchain.hpp
 #pragma once
 
 #include <vulkan\vulkan.hpp>
@@ -13,61 +13,58 @@
 
 namespace vkw
 {
-  struct SwapChainSupportDetails
+  struct SwapchainSupportDetails
   {
     VkSurfaceCapabilitiesKHR capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> present_modes;
   };
-  class SwapChain
+  class Swapchain
   {
   public:
-    static SwapChainSupportDetails querySwapChainSupport
+    static SwapchainSupportDetails querySwapchainSupport
     (
       const VkPhysicalDevice &physical_device,
-      const VkSurfaceKHR &surface
+      VkSurfaceKHR &surface
     );
-    static void createSwapChain
+    static void createSwapchain
     (
-      const VkPhysicalDevice &physical_device,
-      const VkSurfaceKHR &surface,
+      VkPhysicalDevice &physical_device,
+      VkSurfaceKHR &surface,
       const int &width_buffer_size,
       const int &height_buffer_size,
       VkDevice *logical_device,
-      VkSwapchainKHR *swap_chain,
-      std::vector<VkImage> &swap_chain_images,
-      VkFormat &swap_chain_image_format,
-      VkExtent2D &swap_chain_extent
+      VkSwapchainKHR *swapchain,
+      std::vector<VkImage> &swapchain_images,
+      VkFormat &swapchain_image_format,
+      VkExtent2D &swapchain_extent
     );
-    static void destroySwapChain();
+    static void destroySwapchain();
     static void createImageViews
     (
-      std::vector<VkImageView> *swap_chain_image_views,
-      const std::vector<VkImage> &swap_chain_images,
-      const VkFormat &swap_chain_image_format
+      std::vector<VkImageView> *swapchain_image_views,
+      std::vector<VkImage> &swapchain_images,
+      VkFormat &swapchain_image_format
     );
     static void destroyImageViews();
   private:
-    SwapChain();
-
-    inline static VkSwapchainCreateInfoKHR m_create_info{};
-    inline static VkImageViewCreateInfo m_image_view_create_info{};
+    Swapchain();
 
     inline static VkDevice *m_logical_device = nullptr;
-    inline static VkSwapchainKHR *m_swap_chain = nullptr;
-    inline static std::vector<VkImageView> *m_swap_chain_image_views = nullptr;
+    inline static VkSwapchainKHR *m_swapchain = nullptr;
+    inline static std::vector<VkImageView> *m_swapchain_image_views = nullptr;
 
     static VkSurfaceFormatKHR chooseSwapSurfaceFormat
     (
-      const std::vector<VkSurfaceFormatKHR> &available_formats
+      std::vector<VkSurfaceFormatKHR> &available_formats
     );
     static VkPresentModeKHR chooseSwapPresentMode
     (
-      const std::vector<VkPresentModeKHR> &available_present_modes
+      std::vector<VkPresentModeKHR> &available_present_modes
     );
     static VkExtent2D chooseSwapExtent
     (
-      const VkSurfaceCapabilitiesKHR& capabilities,
+      VkSurfaceCapabilitiesKHR& capabilities,
       const int &width,
       const int &height
     );

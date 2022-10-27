@@ -3,9 +3,9 @@
 
 void vkw::PhysicalDevice::pickPhysicalDevice
 (
-  const VkInstance &vk_instance,
+  VkInstance &vk_instance,
   VkPhysicalDevice &physical_device,
-  const VkSurfaceKHR &surface
+  VkSurfaceKHR &surface
 )
 {
   uint32_t device_count = 0;
@@ -36,18 +36,18 @@ void vkw::PhysicalDevice::pickPhysicalDevice
 
 bool vkw::PhysicalDevice::isDeviceSuitable
 (
-  const VkPhysicalDevice &device,
-  const VkSurfaceKHR &surface
+  const VkPhysicalDevice &physical_device,
+  VkSurfaceKHR &surface
 )
 {
-  QueueFamilyIndices indices = QueueFamilyIndices::findQueueFamilies(device, surface);
+  QueueFamilyIndices indices = QueueFamilyIndices::findQueueFamilies(physical_device, surface);
 
-  bool extensions_supported = checkDeviceExtensionSupport(device);
+  bool extensions_supported = checkDeviceExtensionSupport(physical_device);
   bool swap_chain_adequate = false;
   if (extensions_supported)
   {
-    SwapChainSupportDetails swap_chain_support =
-      SwapChain::querySwapChainSupport(device, surface);
+    SwapchainSupportDetails swap_chain_support =
+      Swapchain::querySwapchainSupport(physical_device, surface);
     swap_chain_adequate = !swap_chain_support.formats.empty() &&
       !swap_chain_support.present_modes.empty();
   }
@@ -57,14 +57,14 @@ bool vkw::PhysicalDevice::isDeviceSuitable
 
 bool vkw::PhysicalDevice::checkDeviceExtensionSupport
 (
-  const VkPhysicalDevice &device
+  const VkPhysicalDevice &physical_device
 )
 {
   uint32_t extension_count;
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
+  vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extension_count, nullptr);
 
   std::vector<VkExtensionProperties> available_extensions(extension_count);
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
+  vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extension_count, available_extensions.data());
 
   std::set<std::string> required_extensions(device_extensions.begin(), device_extensions.end());
 

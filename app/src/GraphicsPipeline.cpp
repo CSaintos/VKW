@@ -23,7 +23,7 @@ std::vector<char> vkw::GraphicsPipeline::readFile(const std::string &file_name)
 
 VkShaderModule vkw::GraphicsPipeline::createShaderModule
 (
-  const VkDevice &logical_device,
+  VkDevice &logical_device,
   const std::vector<char> &code
 )
 {
@@ -49,8 +49,8 @@ VkShaderModule vkw::GraphicsPipeline::createShaderModule
 
 void vkw::GraphicsPipeline::createGraphicsPipeline
 (
-  const VkDevice *logical_device,
-  const VkRenderPass *render_pass,
+  VkDevice *logical_device,
+  VkRenderPass *render_pass,
   VkPipelineLayout *pipeline_layout,
   VkPipeline *pipeline,
   const std::vector<std::string> vert_shader_files,
@@ -213,10 +213,12 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
   m_pipeline_layout = pipeline_layout;
   m_pipeline = pipeline;
 
+  VkGraphicsPipelineCreateInfo pipeline_info{};
   pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
   pipeline_info.stageCount = m_shader_stages.size();
   pipeline_info.pStages = m_shader_stages.data();
   pipeline_info.pVertexInputState = &vertex_input_info;
+  pipeline_info.pInputAssemblyState = &input_assembly;
   pipeline_info.pViewportState = &viewport_state_info;
   pipeline_info.pRasterizationState = &rasterization_info;
   pipeline_info.pMultisampleState = &multisampling_info;

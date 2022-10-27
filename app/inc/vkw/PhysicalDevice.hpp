@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "vkw\QueueFamilyIndices.hpp"
-#include "vkw\SwapChain.hpp"
+#include "vkw\Swapchain.hpp"
 
 namespace vkw
 {
@@ -23,16 +23,16 @@ namespace vkw
 
     static void pickPhysicalDevice
     (
-      const VkInstance &vk_instance, 
+      VkInstance &vk_instance, 
       VkPhysicalDevice &physical_device,
-      const VkSurfaceKHR &surface
+      VkSurfaceKHR &surface
     );
   private:
     static bool isDeviceSuitable
     (
       const VkPhysicalDevice &device,
-      const VkSurfaceKHR &surface
+      VkSurfaceKHR &surface
     );
-    static bool checkDeviceExtensionSupport(const VkPhysicalDevice &device);
+    static bool checkDeviceExtensionSupport(const VkPhysicalDevice &physical_device);
   };
 }

@@ -19,18 +19,15 @@ namespace vkw
   public:
     static void createRenderPass
     (
-      const VkDevice *logical_device,
+      VkDevice *logical_device,
       VkRenderPass *render_pass,
-      const VkFormat &swap_chain_image_format
+      const VkFormat &swapchain_image_format
     );
     static void destroyRenderPass();
   private:
-    inline static VkAttachmentDescription m_color_attachment{};
-    inline static VkAttachmentReference m_color_attachment_ref{};
-    inline static VkSubpassDescription m_subpass_desc{};
-    inline static VkRenderPassCreateInfo m_create_info{};
+    RenderPass();
 
-    inline static const VkDevice *m_logical_device = nullptr;
+    inline static VkDevice *m_logical_device = nullptr;
     inline static VkRenderPass *m_render_pass = nullptr;
   };
 }

@@ -35,15 +35,16 @@ namespace vkw
     */
     static void createCommandPool
     (
-      const VkDevice *logical_device,
+      VkDevice *logical_device,
       VkCommandPool *command_pool,
-      const VkPhysicalDevice &physical_device,
-      const VkSurfaceKHR &surface
+      VkPhysicalDevice &physical_device,
+      VkSurfaceKHR &surface
     );
     static void destroyCommandPool();
-    static void createCommandBuffer
+    static void createCommandBuffers
     (
-      VkCommandBuffer *command_buffer
+      std::vector<VkCommandBuffer> &command_buffers,
+      const int &flight_frame_count
     );
     /**
      * recordCommandBuffer()
@@ -57,13 +58,13 @@ namespace vkw
     (
       VkCommandBuffer command_buffer,
       uint32_t image_idx,
-      const VkRenderPass &render_pass,
-      const std::vector<VkFramebuffer> &swap_chain_framebuffers,
-      const VkExtent2D &swap_chain_extent,
-      const VkPipeline &graphics_pipeline
+      VkRenderPass &render_pass,
+      std::vector<VkFramebuffer> &swapchain_framebuffers,
+      VkExtent2D &swapchain_extent,
+      VkPipeline &graphics_pipeline
     );
   private:
-    inline static const VkDevice *m_logical_device = nullptr;
+    inline static VkDevice *m_logical_device = nullptr;
     inline static VkCommandPool *m_command_pool = nullptr;
   };
 }

@@ -19,17 +19,17 @@ namespace vkw
   public:
     static void createLogicalDevice
     (
-      const VkPhysicalDevice &physical_device,
-      const VkSurfaceKHR &surface,
+      VkPhysicalDevice &physical_device,
+      VkSurfaceKHR &surface,
       VkDevice *logical_device,
       VkQueue &graphics_queue,
       VkQueue &present_queue
     );
     static void destroyLogicalDevice();
   private:
-    static inline std::vector<VkDeviceQueueCreateInfo> m_queue_create_infos;
-    static inline VkPhysicalDeviceFeatures m_device_features{};
-    static inline VkDeviceCreateInfo m_create_info{};
+    //static inline std::vector<VkDeviceQueueCreateInfo> m_queue_create_infos;
+    //static inline VkPhysicalDeviceFeatures m_device_features{};
+    //static inline VkDeviceCreateInfo m_create_info{};
     static inline VkDevice *m_logical_device = nullptr;
 
     LogicalDevice();

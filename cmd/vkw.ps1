@@ -24,6 +24,8 @@ g++ $includes -c app\src\RenderPass.cpp -o bin\RenderPass.o -g
 g++ $includes -c app\src\GraphicsPipeline.cpp -o bin\GraphicsPipeline.o -g
 g++ $includes -c app\src\Framebuffer.cpp -o bin\Framebuffer.o -g
 g++ $includes -c app\src\Command.cpp -o bin\Command.o -g
+g++ $includes -c app\src\Synchronization.cpp -o bin\Synchronization.o -g
+g++ $includes -c app\src\Presentation.cpp -o bin\Presentation.o -g
 
 echo "build"
 
@@ -39,7 +41,8 @@ if (-not(Test-Path -Path "build\vkw\lib" -PathType Container)) {
 
 ar -q build\vkw\lib\vkw.lib bin\Validation.o bin\Instance.o bin\QueueFamilyIndices.o `
 bin\PhysicalDevice.o bin\LogicalDevice.o bin\SwapChain.o bin\RenderPass.o `
-bin\GraphicsPipeline.o bin\Framebuffer.o bin\Command.o
+bin\GraphicsPipeline.o bin\Framebuffer.o bin\Command.o bin\Synchronization.o `
+bin\Presentation.o
 Copy-Item -Path "app\inc\*" -Destination "build\vkw\inc" -Recurse
 
 echo "obj-clean"

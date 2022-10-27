@@ -9,8 +9,10 @@
 //#include <vkw\QueueFamilyIndices.hpp> // class should be blocked
 #include <vkw\PhysicalDevice.hpp>
 #include <vkw\LogicalDevice.hpp>
-#include <vkw\SwapChain.hpp>
+#include <vkw\Swapchain.hpp>
 #include <vkw\RenderPass.hpp>
 #include <vkw\GraphicsPipeline.hpp>
 #include <vkw\Framebuffer.hpp>
 #include <vkw\Command.hpp>
+#include <vkw\Synchronization.hpp>
+#include <vkw\Presentation.hpp>
