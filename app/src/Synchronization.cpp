@@ -64,7 +64,7 @@ void vkw::Synchronization::destroySyncObjects()
   for (size_t i = 0; i < *m_flight_frame_count; i++)
   {
     vkDestroySemaphore(*m_logical_device, (*m_image_available_semaphores)[i], nullptr);
-    vkDestroySemaphore(*m_logical_device, (*m_image_available_semaphores)[i], nullptr);
+    vkDestroySemaphore(*m_logical_device, (*m_render_finished_semaphores)[i], nullptr);
     vkDestroyFence(*m_logical_device, (*m_in_flight_fences)[i], nullptr);
   }
 }
