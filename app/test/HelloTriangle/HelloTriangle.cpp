@@ -10,8 +10,11 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <array>
 
 #include <vkw.hpp>
+
+#include "Presentation.hpp"
 
 /**
  * A triangle app
@@ -36,14 +39,24 @@ private:
 
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
+  //int m_width_buffer_size = 0;
+  //int m_height_buffer_size = 0;
+
+  static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+  {
+    auto app = reinterpret_cast<HelloTriangle*>(glfwGetWindowUserPointer(window));
+    app->m_context.framebuffer_resized = true;
+  }
+
   void initWindow()
   {
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    glfwSetWindowUserPointer(m_window, this);
+    glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
   }
 
   std::vector<const char*> getRequiredExtensions()
@@ -72,20 +85,20 @@ private:
 
   void createSwapChain()
   {
-    int width_buffer_size, height_buffer_size;
-    glfwGetFramebufferSize(m_window, &width_buffer_size, &height_buffer_size);
+    std::array<int, 2> buffer_size = 
+      Presentation::updateFramebufferSize(m_window);
 
     vkw::Swapchain::createSwapchain
     (
-      m_context.physical_device,
-      m_context.surface,
-      width_buffer_size,
-      height_buffer_size,
+      &m_context.physical_device,
+      &m_context.surface,
+      buffer_size[0],
+      buffer_size[1],
       &m_context.logical_device,
       &m_context.swapchain,
-      m_context.swapchain_images,
-      m_context.swapchain_image_format,
-      m_context.swapchain_extent
+      &m_context.swapchain_images,
+      &m_context.swapchain_image_format,
+      &m_context.swapchain_extent
     );
   }
 
@@ -138,8 +151,8 @@ private:
     vkw::Swapchain::createImageViews
     (
       &m_context.swapchain_image_views,
-      m_context.swapchain_images,
-      m_context.swapchain_image_format
+      &m_context.swapchain_images,
+      &m_context.swapchain_image_format
     );
     vkw::RenderPass::createRenderPass
     (
@@ -183,23 +196,11 @@ private:
     while (!glfwWindowShouldClose(m_window))
     {
       glfwPollEvents();
-      vkw::Presentation::drawFrame
+      Presentation::drawFrame
       (
-        m_context.logical_device,
-        m_context.in_flight_fences,
-        m_context.swapchain,
-        m_context.image_available_semaphores,
-        m_context.render_finished_semaphores,
-        m_context.command_buffers,
-        m_context.render_pass,
-        m_context.swapchain_framebuffers,
-        m_context.swapchain_extent,
-        m_context.graphics_pipeline,
-        m_context.graphics_queue,
-        m_context.present_queue,
-        m_context.current_frame,
-        m_context.framebuffer_resized,
-        MAX_FRAMES_IN_FLIGHT        
+        m_context,
+        MAX_FRAMES_IN_FLIGHT,
+        m_window
       );
     }
 
@@ -208,15 +209,16 @@ private:
 
   void cleanup()
   {
-    vkw::Synchronization::destroySyncObjects();
-    vkw::Command::destroyCommandPool();
-    vkw::Framebuffer::destroyFramebuffers();
+    vkw::Swapchain::cleanupSwapchain();
+    
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();
-    vkw::Swapchain::destroyImageViews();
-    vkw::Swapchain::destroySwapchain();
+    vkw::Synchronization::destroySyncObjects();
+    vkw::Command::destroyCommandPool();
     vkw::LogicalDevice::destroyLogicalDevice();
+    
     vkw::Validation::destroyDebugUtilsMessengerEXT();
+
     vkDestroySurfaceKHR(m_context.instance, m_context.surface, nullptr);
     vkw::Instance::destroyInstance();
 

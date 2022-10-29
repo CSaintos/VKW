@@ -1,6 +1,84 @@
 // Presentation.cpp
 #include "vkw\Presentation.hpp"
 
+void vkw::Presentation::acquireNextImage
+(
+  VkDevice &logical_device,
+  std::vector<VkFence> &in_flight_fences,
+  uint32_t &current_frame,
+  VkSwapchainKHR &swapchain,
+  std::vector<VkSemaphore> &image_available_semaphores,
+  std::vector<VkFramebuffer> &swapchain_framebuffers,
+  VkRenderPass &render_pass,
+  uint32_t &current_image_idx,
+  std::array<int, 2> (*updateFramebufferSize)()
+)
+{
+  vkWaitForFences
+  (
+    logical_device,
+    1,
+    &in_flight_fences[current_frame],
+    VK_TRUE,
+    UINT64_MAX
+  );
+  
+  // Acquire an image from the swapchain
+  VkResult result = vkAcquireNextImageKHR
+  (
+    logical_device, 
+    swapchain,
+    UINT64_MAX,
+    image_available_semaphores[current_frame],
+    VK_NULL_HANDLE,
+    &current_image_idx 
+  );
+  
+  if (result == VK_ERROR_OUT_OF_DATE_KHR)
+  {
+    std::array<int, 2> buffer_size = updateFramebufferSize();
+    Swapchain::recreateSwapchain
+    (
+      &swapchain_framebuffers,
+      render_pass,
+      buffer_size[0],
+      buffer_size[1]
+    );
+    return;
+  }
+  else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+  {
+    throw std::runtime_error("failed to acquire swapchain image!");
+  }
+  
+  // Only reset fence if work is submitted
+  vkResetFences(logical_device, 1, &in_flight_fences[current_frame]);
+}
+
+void vkw::Presentation::recordCmdBuffer
+(
+  std::vector<VkCommandBuffer> &command_buffers,
+  uint32_t &current_frame,
+  uint32_t &current_image_idx,
+  VkRenderPass &render_pass,
+  std::vector<VkFramebuffer> &swapchain_framebuffers,
+  VkExtent2D &swapchain_extent,
+  VkPipeline &graphics_pipeline
+)
+{
+  // Record the command buffer
+  vkResetCommandBuffer(command_buffers[current_frame], 0);
+  Command::recordCommandBuffer
+  (
+    command_buffers[current_frame],
+    current_image_idx,
+    render_pass,
+    swapchain_framebuffers,
+    swapchain_extent,
+    graphics_pipeline
+  );
+}
+
 void vkw::Presentation::drawFrame
 (
   VkDevice &logical_device,
@@ -17,7 +95,8 @@ void vkw::Presentation::drawFrame
   VkQueue &present_queue,
   uint32_t &current_frame,
   bool &framebuffer_resized,
-  const int &flight_frame_count
+  const int &flight_frame_count,
+  std::array<int, 2> (*updateFramebufferSize)()
 )
 {
   vkWaitForFences
@@ -43,7 +122,14 @@ void vkw::Presentation::drawFrame
   
   if (result == VK_ERROR_OUT_OF_DATE_KHR)
   {
-    // recreateSwapChain();
+    std::array<int, 2> buffer_size = updateFramebufferSize();
+    Swapchain::recreateSwapchain
+    (
+      &swapchain_framebuffers,
+      render_pass,
+      buffer_size[0],
+      buffer_size[1]
+    );
     return;
   }
   else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
@@ -51,6 +137,7 @@ void vkw::Presentation::drawFrame
     throw std::runtime_error("failed to acquire swapchain image!");
   }
   
+  // Only reset fence if work is submitted
   vkResetFences(logical_device, 1, &in_flight_fences[current_frame]);
 
   // Record the command buffer
@@ -122,7 +209,14 @@ void vkw::Presentation::drawFrame
     framebuffer_resized)
   {
     framebuffer_resized = false;
-    // recreateSwapchain(); 
+    std::array<int, 2> buffer_size = updateFramebufferSize();
+    Swapchain::recreateSwapchain
+    (
+      &swapchain_framebuffers,
+      render_pass,
+      buffer_size[0],
+      buffer_size[1]
+    ); 
   }
   else if (result != VK_SUCCESS)
   {

@@ -15,4 +15,4 @@
 #include <vkw\Framebuffer.hpp>
 #include <vkw\Command.hpp>
 #include <vkw\Synchronization.hpp>
-#include <vkw\Presentation.hpp>
+//#include <vkw\Presentation.hpp>

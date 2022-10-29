@@ -129,19 +129,19 @@ VkExtent2D vkw::Swapchain::chooseSwapExtent
 
 void vkw::Swapchain::createSwapchain
 (
-  VkPhysicalDevice &physical_device,
-  VkSurfaceKHR &surface,
+  VkPhysicalDevice *physical_device,
+  VkSurfaceKHR *surface,
   const int &width_buffer_size,
   const int &height_buffer_size,
   VkDevice *logical_device,
   VkSwapchainKHR *swapchain,
-  std::vector<VkImage> &swapchain_images,
-  VkFormat &swapchain_image_format,
-  VkExtent2D &swapchain_extent
+  std::vector<VkImage> *swapchain_images,
+  VkFormat *swapchain_image_format,
+  VkExtent2D *swapchain_extent
 )
 {
   SwapchainSupportDetails swapchain_support = 
-    querySwapchainSupport(physical_device, surface);
+    querySwapchainSupport(*physical_device, *surface);
   
   VkSurfaceFormatKHR surface_format = 
     chooseSwapSurfaceFormat(swapchain_support.formats);
@@ -165,7 +165,7 @@ void vkw::Swapchain::createSwapchain
 
   VkSwapchainCreateInfoKHR swapchain_info{};
   swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-  swapchain_info.surface = surface;
+  swapchain_info.surface = *surface;
   swapchain_info.minImageCount = image_count;
   swapchain_info.imageFormat = surface_format.format;
   swapchain_info.imageColorSpace = surface_format.colorSpace;
@@ -174,7 +174,7 @@ void vkw::Swapchain::createSwapchain
   swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
   QueueFamilyIndices indices = 
-    QueueFamilyIndices::findQueueFamilies(physical_device, surface);
+    QueueFamilyIndices::findQueueFamilies(*physical_device, *surface);
   uint32_t queue_family_indices[] =
     {
       indices.graphics_family.value(),
@@ -213,23 +213,31 @@ void vkw::Swapchain::createSwapchain
     throw std::runtime_error("failed to create swap chain!");
   }
 
-  m_logical_device = logical_device;
-  m_swapchain = swapchain;
-
   // Retrieve swap chain images
-  vkGetSwapchainImagesKHR(*m_logical_device, *m_swapchain, &image_count, nullptr);
-  swapchain_images.resize(image_count);
+  vkGetSwapchainImagesKHR(*logical_device, *swapchain, &image_count, nullptr);
+  swapchain_images->resize(image_count);
   vkGetSwapchainImagesKHR
     (
-      *m_logical_device, 
-      *m_swapchain, 
+      *logical_device, 
+      *swapchain, 
       &image_count, 
-      swapchain_images.data()
+      swapchain_images->data()
     );
   // Retrieve swap chain format
-  swapchain_image_format = surface_format.format;
+  *swapchain_image_format = surface_format.format;
   // Retrieve swap chain extent
-  swapchain_extent = extent;
+  *swapchain_extent = extent;
+
+  // link static vars
+  m_logical_device = logical_device;
+  m_swapchain = swapchain;
+  //m_width_buffer_size = width_buffer_size;
+  //m_height_buffer_size = height_buffer_size;
+  m_physical_device = physical_device;
+  m_surface = surface;
+  m_swapchain_images = swapchain_images;
+  m_swapchain_image_format = swapchain_image_format;
+  m_swapchain_extent = swapchain_extent;
 }
 
 void vkw::Swapchain::destroySwapchain()
@@ -240,16 +248,16 @@ void vkw::Swapchain::destroySwapchain()
 void vkw::Swapchain::createImageViews
 (
   std::vector<VkImageView> *swapchain_image_views,
-  std::vector<VkImage> &swapchain_images,
-  VkFormat &swapchain_image_format
+  std::vector<VkImage> *swapchain_images,
+  VkFormat *swapchain_image_format
 )
 {
-  swapchain_image_views->resize(swapchain_images.size());
+  swapchain_image_views->resize(swapchain_images->size());
 
   VkImageViewCreateInfo image_view_info{};
   image_view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   image_view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  image_view_info.format = swapchain_image_format;
+  image_view_info.format = *swapchain_image_format;
   image_view_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
   image_view_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
   image_view_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -260,9 +268,9 @@ void vkw::Swapchain::createImageViews
   image_view_info.subresourceRange.baseArrayLayer = 0;
   image_view_info.subresourceRange.layerCount = 1; 
 
-  for (size_t i = 0; i < swapchain_images.size(); i++)
+  for (size_t i = 0; i < swapchain_images->size(); i++)
   {
-    image_view_info.image = swapchain_images[i];
+    image_view_info.image = (*swapchain_images)[i];
 
     if (vkCreateImageView
       (
@@ -285,4 +293,53 @@ void vkw::Swapchain::destroyImageViews()
   {
     vkDestroyImageView(*m_logical_device, image_view, nullptr);
   }
+}
+
+void vkw::Swapchain::recreateSwapchain
+(
+  std::vector<VkFramebuffer> *swapchain_framebuffers,
+  const VkRenderPass &render_pass,
+  const int &width_buffer_size,
+  const int &height_buffer_size
+)
+{
+  vkDeviceWaitIdle(*m_logical_device);
+
+  cleanupSwapchain();
+
+  createSwapchain
+  (
+    m_physical_device,
+    m_surface,
+    width_buffer_size,
+    height_buffer_size,
+    m_logical_device,
+    m_swapchain,
+    m_swapchain_images,
+    m_swapchain_image_format,
+    m_swapchain_extent
+  );
+  createImageViews
+  (
+    m_swapchain_image_views,
+    m_swapchain_images,
+    m_swapchain_image_format
+  );
+  Framebuffer::createFramebuffers
+  (
+    m_logical_device,
+    swapchain_framebuffers,
+    *m_swapchain_image_views,
+    render_pass,
+    *m_swapchain_extent
+  );
+
+  m_swapchain_framebuffers = swapchain_framebuffers;
+}
+
+void vkw::Swapchain::cleanupSwapchain()
+{
+  Framebuffer::destroyFramebuffers();
+  destroyImageViews();
+  destroySwapchain();
 }

@@ -34,5 +34,6 @@ namespace vkw
     std::vector<VkFence> in_flight_fences;
     uint32_t current_frame = 0;
     bool framebuffer_resized = false;
+    uint32_t current_image_idx = 0;
   };
 }

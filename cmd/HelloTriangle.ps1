@@ -1,6 +1,7 @@
 
 Set-Variable -Name "includes" -Value "-Iapp\test\lib\GLFW", `
-"-Iapp\test\lib\glm", "-Ilib\Vulkan\Include", "-Ibuild\vkw\inc"
+"-Iapp\test\lib\glm", "-Ilib\Vulkan\Include", "-Ibuild\vkw\inc", `
+"-Iapp\test\HelloTriangle"
 Set-Variable -Name "links" -Value "-Llib\Vulkan\Lib", "-Lapp\test\lib\GLFW", `
 "-Lbuild\vkw\lib", "-lvkw", "-l:libglfw3.a", "-lgdi32", "-lvulkan-1"
 Set-Variable -Name "defines" -Value ""
@@ -11,14 +12,16 @@ if (Test-Path -Path "build\HelloTriangle\HelloTriangle.exe" -PathType Leaf) {
 }
 
 echo "compile"
-g++ $includes -c app\test\HelloTriangle\HelloTriangle.cpp -o bin\helloTriangle.o -g
+g++ $includes -c app\test\HelloTriangle\HelloTriangle.cpp -o bin\HelloTriangle.o -g
+g++ $includes -c app\test\HelloTriangle\Presentation.cpp -o bin\Presentation.o -g
 
 echo "build"
 if (-not(Test-Path -Path "build\HelloTriangle" -PathType Container)) {
   New-Item -ItemType Directory -Path "build\HelloTriangle" | Out-Null
 }
 
-g++ bin\helloTriangle.o $links -o build\HelloTriangle\HelloTriangle.exe -g
+g++ bin\Presentation.o bin\HelloTriangle.o $links `
+-o build\HelloTriangle\HelloTriangle.exe -g
 
 echo "compile shaders"
 glslc app\test\HelloTriangle\Base.vert -o build\HelloTriangle\vert.spv
