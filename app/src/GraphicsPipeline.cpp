@@ -53,8 +53,10 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
   VkRenderPass *render_pass,
   VkPipelineLayout *pipeline_layout,
   VkPipeline *pipeline,
-  const std::vector<std::string> vert_shader_files,
-  const std::vector<std::string> frag_shader_files
+  const std::vector<std::string> &vert_shader_files,
+  const std::vector<std::string> &frag_shader_files,
+  const std::vector<VkVertexInputBindingDescription> &binding_descs,
+  const std::vector<VkVertexInputAttributeDescription> &attrib_descs
 )
 {
   for (std::string vert_shader_file : vert_shader_files)
@@ -94,7 +96,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
     m_shader_stages.push_back(frag_shader_stage_info);
     m_shader_modules.push_back(frag_shader_module);
   }
-
+  
   // Dynamic State fixed function
   // used to keep out the viewport and line and blend constants
   // whenever the pipeline is recreated, so therefore they need to be
@@ -113,10 +115,10 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
   // Vertex Input State Fixed Function
   VkPipelineVertexInputStateCreateInfo vertex_input_info{};
   vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertex_input_info.vertexBindingDescriptionCount = 0;
-  vertex_input_info.pVertexBindingDescriptions = nullptr; // Optional
-  vertex_input_info.vertexAttributeDescriptionCount = 0;
-  vertex_input_info.pVertexAttributeDescriptions = nullptr; // Optional
+  vertex_input_info.vertexBindingDescriptionCount = static_cast<uint32_t>(binding_descs.size());
+  vertex_input_info.pVertexBindingDescriptions = binding_descs.data();
+  vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attrib_descs.size());
+  vertex_input_info.pVertexAttributeDescriptions = attrib_descs.data();
 
   // Input Assembly describes what kind of geometry will be drawn
   // from the vertices and if primitive restart should be enabled.

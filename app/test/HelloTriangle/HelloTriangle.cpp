@@ -114,7 +114,9 @@ private:
       &m_context.pipeline_layout,
       &m_context.graphics_pipeline,
       vert_shader_files,
-      frag_shader_files
+      frag_shader_files,
+      {},
+      {}
     );
   }
 

@@ -20,8 +20,10 @@ namespace vkw
       VkRenderPass *render_pass,
       VkPipelineLayout *pipeline_layout,
       VkPipeline *pipeline,
-      const std::vector<std::string> vert_shader_files,
-      const std::vector<std::string> frag_shader_files
+      const std::vector<std::string> &vert_shader_files,
+      const std::vector<std::string> &frag_shader_files,
+      const std::vector<VkVertexInputBindingDescription> &binding_descs,
+      const std::vector<VkVertexInputAttributeDescription> &attrib_descs
     );
     static void destroyGraphicsPipeline();
   private:
