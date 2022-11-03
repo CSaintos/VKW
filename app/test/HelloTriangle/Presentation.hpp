@@ -19,7 +19,8 @@ public:
   (
     vkw::Context &context,
     const int &flight_frame_count,
-    GLFWwindow *window
+    GLFWwindow *window,
+    std::vector<vkw::Vertex> &vertices
   );
   static std::array<int, 2> updateFramebufferSize
   (

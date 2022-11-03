@@ -35,5 +35,7 @@ namespace vkw
     uint32_t current_frame = 0;
     bool framebuffer_resized = false;
     uint32_t current_image_idx = 0;
+    VkBuffer vertex_buffer;
+    VkDeviceMemory vertex_buffer_memory;
   };
 }

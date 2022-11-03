@@ -89,7 +89,9 @@ void vkw::Command::recordCommandBuffer
   VkRenderPass &render_pass,
   std::vector<VkFramebuffer> &swapchain_framebuffers,
   VkExtent2D &swap_chain_extent,
-  VkPipeline &graphics_pipeline
+  VkPipeline &graphics_pipeline,
+  VkBuffer &vertex_buffer,
+  std::vector<Vertex> &vertices
 )
 {
   VkCommandBufferBeginInfo begin_info{};
@@ -176,6 +178,10 @@ void vkw::Command::recordCommandBuffer
     scissor.extent = swap_chain_extent;
     vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
+    VkBuffer vertex_buffers[] = {vertex_buffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+
     /*
     vkCmdDraw()
     - vertexCount: we don't have a vertex buffer, we specify 3 vertices to draw.
@@ -185,10 +191,10 @@ void vkw::Command::recordCommandBuffer
     - firstInstance: Used as an offset for instanced rendering, defines the lowest
     value of gl_InstanceIndex.
     */
-    vkCmdDraw(command_buffer, 3, 1, 0, 0);
+    vkCmdDraw(command_buffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
   
-    // end render pass for recording cmd buffer
-    vkCmdEndRenderPass(command_buffer);
+  // end render pass for recording cmd buffer
+  vkCmdEndRenderPass(command_buffer);
   
   // finish recording cmd buffer
   if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS)

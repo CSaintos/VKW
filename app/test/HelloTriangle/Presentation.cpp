@@ -5,7 +5,8 @@ void Presentation::drawFrame
 (
   vkw::Context &context,
   const int &flight_frame_count,
-  GLFWwindow *window
+  GLFWwindow *window,
+  std::vector<vkw::Vertex> &vertices
 )
 {
   vkWaitForFences
@@ -59,7 +60,9 @@ void Presentation::drawFrame
     context.render_pass,
     context.swapchain_framebuffers,
     context.swapchain_extent,
-    context.graphics_pipeline
+    context.graphics_pipeline,
+    context.vertex_buffer,
+    vertices
   );
 
   // With a fully recorded command buffer, we can now submit it.

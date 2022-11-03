@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "vkw\QueueFamilyIndices.hpp"
+#include "vkw\VertexBuffer.hpp"
 
 namespace vkw
 {
@@ -61,7 +62,9 @@ namespace vkw
       VkRenderPass &render_pass,
       std::vector<VkFramebuffer> &swapchain_framebuffers,
       VkExtent2D &swapchain_extent,
-      VkPipeline &graphics_pipeline
+      VkPipeline &graphics_pipeline,
+      VkBuffer &vertex_buffer,
+      std::vector<Vertex> &vertices
     );
   private:
     inline static VkDevice *m_logical_device = nullptr;

@@ -15,6 +15,7 @@
 #include <vkw.hpp>
 
 #include "Presentation.hpp"
+//#include "Vertex.hpp"
 
 /**
  * A triangle app
@@ -39,8 +40,12 @@ private:
 
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  //int m_width_buffer_size = 0;
-  //int m_height_buffer_size = 0;
+  std::vector<vkw::Vertex> vertices = 
+  {
+    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+  };
 
   static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
   {
@@ -115,8 +120,8 @@ private:
       &m_context.graphics_pipeline,
       vert_shader_files,
       frag_shader_files,
-      {},
-      {}
+      vkw::Vertex::getBindingDescription(),
+      vkw::Vertex::getAttributeDescriptions()
     );
   }
 
@@ -178,6 +183,14 @@ private:
       m_context.physical_device,
       m_context.surface
     );
+    vkw::VertexBuffer::createVertexBuffer
+    (
+      &m_context.logical_device,
+      &m_context.vertex_buffer,
+      m_context.physical_device,
+      &m_context.vertex_buffer_memory,
+      vertices
+    );
     vkw::Command::createCommandBuffers
     (
       m_context.command_buffers,
@@ -202,7 +215,8 @@ private:
       (
         m_context,
         MAX_FRAMES_IN_FLIGHT,
-        m_window
+        m_window,
+        vertices
       );
     }
 
@@ -213,6 +227,7 @@ private:
   {
     vkw::Swapchain::cleanupSwapchain();
     
+    vkw::VertexBuffer::destroyVertexBuffer();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();
     vkw::Synchronization::destroySyncObjects();
