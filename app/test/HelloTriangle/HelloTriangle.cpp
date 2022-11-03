@@ -189,7 +189,9 @@ private:
       &m_context.vertex_buffer,
       m_context.physical_device,
       &m_context.vertex_buffer_memory,
-      vertices
+      vertices,
+      m_context.command_pool,
+      m_context.graphics_queue
     );
     vkw::Command::createCommandBuffers
     (
