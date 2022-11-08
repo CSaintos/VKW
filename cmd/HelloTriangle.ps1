@@ -13,14 +13,14 @@ if (Test-Path -Path "build\HelloTriangle\HelloTriangle.exe" -PathType Leaf) {
 
 echo "compile"
 g++ $includes -c app\test\HelloTriangle\HelloTriangle.cpp -o bin\HelloTriangle.o -g
-g++ $includes -c app\test\HelloTriangle\Presentation.cpp -o bin\Presentation.o -g
+# g++ $includes -c app\test\HelloTriangle\Presentation.cpp -o bin\Presentation.o -g
 
 echo "build"
 if (-not(Test-Path -Path "build\HelloTriangle" -PathType Container)) {
   New-Item -ItemType Directory -Path "build\HelloTriangle" | Out-Null
 }
 
-g++ bin\Presentation.o bin\HelloTriangle.o $links `
+g++ bin\HelloTriangle.o $links `
 -o build\HelloTriangle\HelloTriangle.exe -g
 
 echo "compile shaders"

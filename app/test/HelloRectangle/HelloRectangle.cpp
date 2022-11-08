@@ -14,8 +14,6 @@
 
 #include <vkw.hpp>
 
-#include "Presentation.hpp"
-
 /**
  * A rectangle app
 */
@@ -33,8 +31,11 @@ private:
   GLFWwindow *m_window;
   vkw::Context m_context;
 
-  const uint32_t WIDTH = 800;
-  const uint32_t HEIGHT = 600;
+  std::array<int, 2> m_buffer_size = 
+  {
+    800, // Width
+    600 // Height
+  };
 
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -52,9 +53,35 @@ private:
   const std::vector<uint16_t> indices =
   {0, 1, 2, 2, 3, 0};
 
+  /**
+   * Gets the framebuffer size for swapchain creation.
+   * 
+   * Checks if window is minimized. If so, it stalls 
+   * until the window is normal.
+  */
+  void updateFramebufferSize()
+  {
+    do 
+    {
+      glfwGetFramebufferSize
+      (
+        m_window,
+        &m_buffer_size[0],
+        &m_buffer_size[1]
+      );
+      glfwWaitEvents();
+    } 
+    while 
+    (
+      m_buffer_size[0] == 0 ||
+      m_buffer_size[1] == 0
+    );
+  }
+
   static void framebufferResizeCallback(GLFWwindow *window, int width, int height)
   {
-    auto app = reinterpret_cast<HelloRectangle*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<HelloRectangle*>
+      (glfwGetWindowUserPointer(window));
     app->m_context.framebuffer_resized = true;
   }
 
@@ -63,7 +90,7 @@ private:
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    m_window = glfwCreateWindow(m_buffer_size[0], m_buffer_size[1], "Vulkan", nullptr, nullptr);
     glfwSetWindowUserPointer(m_window, this);
     glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
   }
@@ -101,13 +128,12 @@ private:
 
   void createSwapChain()
   {
-    std::array<int, 2> buffer_size
-      = Presentation::updateFramebufferSize(m_window);
+    updateFramebufferSize();
 
     vkw::Swapchain::createSwapchain
     (
-      buffer_size[0],
-      buffer_size[1],
+      m_buffer_size[0],
+      m_buffer_size[1],
       &m_context
     );
   }
@@ -165,18 +191,63 @@ private:
     );
   }
 
+  void checkSwapchainUpdates(VkResult result)
+  {
+    if (result == VK_ERROR_OUT_OF_DATE_KHR ||
+      result == VK_SUBOPTIMAL_KHR || 
+      m_context.framebuffer_resized)
+    {
+      m_context.framebuffer_resized = false;
+      updateFramebufferSize();
+      vkw::Swapchain::recreateSwapchain
+      (
+        &m_context.swapchain_framebuffers,
+        m_context.render_pass,
+        m_buffer_size[0],
+        m_buffer_size[1]
+      );
+    }
+    else if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to present swapchain image!");
+    }
+  }
+
+  void drawFrame()
+  {
+    // update swapchain if image is changed
+    checkSwapchainUpdates
+    (
+      // get next image to check for frame changes
+      vkw::Presentation::acquireNextImage(m_context)
+    );
+
+    vkw::Presentation::resubmitCommandBuffer
+    (
+      m_context,
+      vertices
+    );
+
+    // update swapchain if image is changed
+    checkSwapchainUpdates
+    (
+      // submit swapchain images to present queue
+      vkw::Presentation::presentQueue(m_context)
+    );
+
+    vkw::Presentation::nextFrame
+    (
+      m_context,
+      MAX_FRAMES_IN_FLIGHT
+    );
+  }
+
   void mainLoop()
   {
     while (!glfwWindowShouldClose(m_window))
     {
       glfwPollEvents();
-      Presentation::drawFrame
-      (
-        m_context,
-        MAX_FRAMES_IN_FLIGHT,
-        m_window,
-        vertices
-      );
+      drawFrame();
     }
 
     vkDeviceWaitIdle(m_context.logical_device);
