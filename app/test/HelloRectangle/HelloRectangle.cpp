@@ -24,7 +24,10 @@ class HelloRectangle
 public:
   void run()
   {
-
+    initWindow();
+    initVulkan();
+    mainLoop();
+    cleanup();
   }
 private:
   GLFWwindow *m_window;
@@ -37,10 +40,13 @@ private:
 
   const std::vector<vkw::Vertex> vertices =
   {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    //{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    //{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    //{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    //{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
   };
 
   const std::vector<uint16_t> indices =
@@ -81,8 +87,13 @@ private:
 
   void createSurface()
   {
-    if (glfwCreateWindowSurface(m_context.instance, m_window, nullptr, &m_context.surface)
-    != VK_SUCCESS)
+    if (glfwCreateWindowSurface
+    (
+      m_context.instance, 
+      m_window, 
+      nullptr, 
+      &m_context.surface
+    ) != VK_SUCCESS)
     {
       throw std::runtime_error("failed to create window surface!");
     }
