@@ -1,15 +1,14 @@
 // RenderPass.cpp
 #include "vkw\RenderPass.hpp"
 
-void vkw::RenderPass::createRenderPass
-(
-  VkDevice *logical_device,
-  VkRenderPass *render_pass,
-  const VkFormat &swapchain_image_format
-)
+void vkw::RenderPass::createRenderPass(Context &context)
 {
+  // link static vars
+  m_logical_device = &context.logical_device;
+  m_render_pass = &context.render_pass;
+
   VkAttachmentDescription color_attachment{};
-  color_attachment.format = swapchain_image_format;
+  color_attachment.format = context.swapchain_image_format;
   // if multi-sampling, then more than 1.
   color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
   /*
@@ -109,17 +108,14 @@ void vkw::RenderPass::createRenderPass
 
   if (vkCreateRenderPass
     (
-      *logical_device,
+      *m_logical_device,
       &render_pass_info,
       nullptr,
-      render_pass
+      m_render_pass
     ) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to create render pass!");
   }
-
-  m_logical_device = logical_device;
-  m_render_pass = render_pass;
 }
 
 void vkw::RenderPass::destroyRenderPass()

@@ -1,16 +1,14 @@
 // Command.cpp
 #include "vkw\Command.hpp"
 
-void vkw::Command::createCommandPool
-(
-  VkDevice *logical_device,
-  VkCommandPool *command_pool,
-  VkPhysicalDevice &physical_device,
-  VkSurfaceKHR &surface
-)
+void vkw::Command::createCommandPool(Context &context)
 {
+  // link static vars
+  m_logical_device = &context.logical_device;
+  m_command_pool = &context.command_pool;
+
   QueueFamilyIndices queue_family_indices = 
-    QueueFamilyIndices::findQueueFamilies(physical_device, surface);
+    QueueFamilyIndices::findQueueFamilies(context.physical_device, context.surface);
 
   VkCommandPoolCreateInfo pool_info{};
   pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -31,17 +29,14 @@ void vkw::Command::createCommandPool
   */
   if (vkCreateCommandPool
     (
-      *logical_device,
+      *m_logical_device,
       &pool_info,
       nullptr,
-      command_pool
+      m_command_pool
     ) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to create command pool!");
   }
-
-  m_logical_device = logical_device;
-  m_command_pool = command_pool;
 }
 
 void vkw::Command::destroyCommandPool()
@@ -91,7 +86,7 @@ void vkw::Command::recordCommandBuffer
   VkExtent2D &swap_chain_extent,
   VkPipeline &graphics_pipeline,
   VkBuffer &vertex_buffer,
-  std::vector<Vertex> &vertices
+  const std::vector<Vertex> &vertices
 )
 {
   VkCommandBufferBeginInfo begin_info{};

@@ -3,6 +3,8 @@
 
 #include <vulkan\vulkan.hpp>
 
+#include "vkw\Context.hpp"
+
 namespace vkw
 {
   /**
@@ -17,12 +19,7 @@ namespace vkw
   class RenderPass
   {
   public:
-    static void createRenderPass
-    (
-      VkDevice *logical_device,
-      VkRenderPass *render_pass,
-      const VkFormat &swapchain_image_format
-    );
+    static void createRenderPass(Context &context);
     static void destroyRenderPass();
   private:
     RenderPass();

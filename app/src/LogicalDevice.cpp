@@ -3,15 +3,19 @@
 
 void vkw::LogicalDevice::createLogicalDevice
 (
-  VkPhysicalDevice &physical_device,
-  VkSurfaceKHR &surface,
-  VkDevice *logical_device,
-  VkQueue &graphics_queue,
-  VkQueue &present_queue
+  Context &context
+  //VkPhysicalDevice &physical_device,
+  //VkSurfaceKHR &surface,
+  //VkDevice *logical_device,
+  //VkQueue &graphics_queue,
+  //VkQueue &present_queue
 )
 {
+  // link static vars
+  m_logical_device = &context.logical_device;
+
   QueueFamilyIndices indices = 
-    QueueFamilyIndices::findQueueFamilies(physical_device, surface);
+    QueueFamilyIndices::findQueueFamilies(context.physical_device, context.surface);
   
   std::set<uint32_t> unique_queue_families = 
   {
@@ -52,15 +56,31 @@ void vkw::LogicalDevice::createLogicalDevice
     logical_device_info.enabledLayerCount = 0;
   }
 
-  if (vkCreateDevice(physical_device, &logical_device_info, nullptr, logical_device) != VK_SUCCESS)
+  if (vkCreateDevice
+  (
+    context.physical_device, 
+    &logical_device_info, 
+    nullptr, 
+    m_logical_device
+  ) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to create logical device!");
   }
 
-  vkGetDeviceQueue(*logical_device, indices.graphics_family.value(), 0, &graphics_queue);
-  vkGetDeviceQueue(*logical_device, indices.present_family.value(), 0, &present_queue);
-
-  m_logical_device = logical_device;
+  vkGetDeviceQueue
+  (
+    *m_logical_device, 
+    indices.graphics_family.value(), 
+    0, 
+    &context.graphics_queue
+  );
+  vkGetDeviceQueue
+  (
+    *m_logical_device, 
+    indices.present_family.value(), 
+    0, 
+    &context.present_queue
+  );
 }
 
 void vkw::LogicalDevice::destroyLogicalDevice()

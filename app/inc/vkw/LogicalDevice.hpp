@@ -8,6 +8,7 @@
 #include <vector>
 #include <set>
 
+#include "vkw\Context.hpp"
 #include "vkw\Validation.hpp"
 #include "vkw\QueueFamilyIndices.hpp"
 #include "vkw\PhysicalDevice.hpp"
@@ -19,11 +20,12 @@ namespace vkw
   public:
     static void createLogicalDevice
     (
-      VkPhysicalDevice &physical_device,
-      VkSurfaceKHR &surface,
-      VkDevice *logical_device,
-      VkQueue &graphics_queue,
-      VkQueue &present_queue
+      Context &context
+      //VkPhysicalDevice &physical_device,
+      //VkSurfaceKHR &surface,
+      //VkDevice *logical_device,
+      //VkQueue &graphics_queue,
+      //VkQueue &present_queue
     );
     static void destroyLogicalDevice();
   private:

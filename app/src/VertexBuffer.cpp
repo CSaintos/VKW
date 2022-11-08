@@ -3,17 +3,12 @@
 
 void vkw::VertexBuffer::createVertexBuffer
 (
-  VkDevice *logical_device,
-  VkBuffer *vertex_buffer,
-  VkPhysicalDevice &physical_device,
-  VkDeviceMemory *vertex_buffer_memory,
-  std::vector<Vertex> &vertices,
-  VkCommandPool &command_pool,
-  VkQueue &graphics_queue
+  Context &context,
+  const std::vector<Vertex> &vertices
 )
 {
   // link members
-  m_logical_device = logical_device;
+  m_logical_device = &context.logical_device;
 
   VkDeviceSize buffer_size = 
     sizeof(vertices[0]) * vertices.size();
@@ -29,7 +24,7 @@ void vkw::VertexBuffer::createVertexBuffer
     staging_buffer,
     staging_buffer_memory,
     *m_logical_device,
-    physical_device
+    context.physical_device
   );
 
   void *data;
@@ -46,8 +41,8 @@ void vkw::VertexBuffer::createVertexBuffer
   vkUnmapMemory(*m_logical_device, staging_buffer_memory);
 
   // link members
-  m_vertex_buffer = vertex_buffer;
-  m_vertex_buffer_memory = vertex_buffer_memory;
+  m_vertex_buffer = &context.vertex_buffer;
+  m_vertex_buffer_memory = &context.vertex_buffer_memory;
 
   /*
   We're now going to use the staging buffer and its memory
@@ -69,17 +64,17 @@ void vkw::VertexBuffer::createVertexBuffer
     *m_vertex_buffer,
     *m_vertex_buffer_memory,
     *m_logical_device,
-    physical_device
+    context.physical_device
   );
 
   Buffer::copyBuffer
   (
     staging_buffer,
-    *vertex_buffer,
+    context.vertex_buffer,
     buffer_size,
     *m_logical_device,
-    command_pool,
-    graphics_queue
+    context.command_pool,
+    context.graphics_queue
   );
 
   vkDestroyBuffer(*m_logical_device, staging_buffer, nullptr);

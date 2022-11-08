@@ -3,6 +3,8 @@
 
 #include <vulkan\vulkan.hpp>
 
+#include "vkw\Context.hpp"
+
 namespace vkw
 {
   class Synchronization
@@ -10,10 +12,7 @@ namespace vkw
   public:
     static void createSyncObjects
     (
-      VkDevice *logical_device,
-      std::vector<VkSemaphore> *image_available_semaphores,
-      std::vector<VkSemaphore> *render_finished_semaphores,
-      std::vector<VkFence> *in_flight_fences,
+      Context &context,
       const int *flight_frame_count
     );
     static void destroySyncObjects();

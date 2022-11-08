@@ -8,6 +8,8 @@
 #include <array>
 #include <vector>
 
+#include "vkw\Context.hpp"
+
 namespace vkw
 {
   struct Vertex
@@ -24,13 +26,8 @@ namespace vkw
   public:
     static void createVertexBuffer
     (
-      VkDevice *logical_device,
-      VkBuffer *vertex_buffer,
-      VkPhysicalDevice &physical_device,
-      VkDeviceMemory *vertex_buffer_memory,
-      std::vector<Vertex> &vertices,
-      VkCommandPool &command_pool,
-      VkQueue &graphics_queue
+      Context &context,
+      const std::vector<Vertex> &vertices
     );
     static void destroyVertexBuffer();
   private:

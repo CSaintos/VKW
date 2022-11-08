@@ -9,6 +9,7 @@
 #include <limits>
 #include <algorithm>
 
+#include "vkw\Context.hpp"
 #include "vkw\QueueFamilyIndices.hpp"
 #include "vkw\Framebuffer.hpp"
 
@@ -30,23 +31,12 @@ namespace vkw
     );
     static void createSwapchain
     (
-      VkPhysicalDevice *physical_device,
-      VkSurfaceKHR *surface,
       const int &width_buffer_size,
       const int &height_buffer_size,
-      VkDevice *logical_device,
-      VkSwapchainKHR *swapchain,
-      std::vector<VkImage> *swapchain_images,
-      VkFormat *swapchain_image_format,
-      VkExtent2D *swapchain_extent
+      Context *context = nullptr
     );
     static void destroySwapchain();
-    static void createImageViews
-    (
-      std::vector<VkImageView> *swapchain_image_views,
-      std::vector<VkImage> *swapchain_images,
-      VkFormat *swapchain_image_format
-    );
+    static void createImageViews();
     static void destroyImageViews();
     static void recreateSwapchain
     (
@@ -59,11 +49,10 @@ namespace vkw
   private:
     Swapchain();
 
+    inline static Context *m_context = nullptr;
     inline static VkDevice *m_logical_device = nullptr;
     inline static VkSwapchainKHR *m_swapchain = nullptr;
     inline static std::vector<VkImageView> *m_swapchain_image_views = nullptr;
-    //inline static const int *m_width_buffer_size = nullptr;
-    //inline static const int *m_height_buffer_size = nullptr;
     inline static VkPhysicalDevice *m_physical_device = nullptr;
     inline static VkSurfaceKHR *m_surface = nullptr;
     inline static std::vector<VkImage> *m_swapchain_images = nullptr;

@@ -3,13 +3,11 @@
 
 void vkw::PhysicalDevice::pickPhysicalDevice
 (
-  VkInstance &vk_instance,
-  VkPhysicalDevice &physical_device,
-  VkSurfaceKHR &surface
+  Context &context
 )
 {
   uint32_t device_count = 0;
-  vkEnumeratePhysicalDevices(vk_instance, &device_count, nullptr);
+  vkEnumeratePhysicalDevices(context.instance, &device_count, nullptr);
 
   if (device_count == 0)
   {
@@ -17,18 +15,18 @@ void vkw::PhysicalDevice::pickPhysicalDevice
   }
 
   std::vector<VkPhysicalDevice> devices(device_count);
-  vkEnumeratePhysicalDevices(vk_instance, &device_count, devices.data());
+  vkEnumeratePhysicalDevices(context.instance, &device_count, devices.data());
 
   for (const VkPhysicalDevice &device : devices)
   {
-    if (isDeviceSuitable(device, surface))
+    if (isDeviceSuitable(device, context.surface))
     {
-      physical_device = device;
+      context.physical_device = device;
       break;
     }
   }
 
-  if (physical_device == VK_NULL_HANDLE)
+  if (context.physical_device == VK_NULL_HANDLE)
   {
     throw std::runtime_error("failed to find a suitable GPU!");
   }

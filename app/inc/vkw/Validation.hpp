@@ -9,6 +9,8 @@
 #include <iostream>
 #include <vector>
 
+#include "vkw\Context.hpp"
+
 namespace vkw
 {
   /**
@@ -34,9 +36,13 @@ namespace vkw
     */
     static bool checkValidationLayerSupport();
 
-    static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &create_info);
+    static void populateDebugMessengerCreateInfo
+    (VkDebugUtilsMessengerCreateInfoEXT &create_info);
 
-    static void setupDebugMessenger(VkInstance *vk_instance, VkDebugUtilsMessengerEXT *debug_messenger);
+    static void setupDebugMessenger
+    (
+      Context &context
+    );
 
     static void destroyDebugUtilsMessengerEXT
     (

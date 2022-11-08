@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "vkw\Context.hpp"
 #include "vkw\QueueFamilyIndices.hpp"
 #include "vkw\Swapchain.hpp"
 
@@ -23,9 +24,7 @@ namespace vkw
 
     static void pickPhysicalDevice
     (
-      VkInstance &vk_instance, 
-      VkPhysicalDevice &physical_device,
-      VkSurfaceKHR &surface
+      Context &context
     );
   private:
     static bool isDeviceSuitable

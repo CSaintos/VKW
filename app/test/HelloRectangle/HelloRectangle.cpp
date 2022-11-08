@@ -1,4 +1,4 @@
-// HelloTriangle.cpp
+// HelloRectangle.cpp
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
 #include <glfw3.h>
@@ -15,22 +15,17 @@
 #include <vkw.hpp>
 
 #include "Presentation.hpp"
-//#include "Vertex.hpp"
 
 /**
- * A triangle app
+ * A rectangle app
 */
-class HelloTriangle
+class HelloRectangle
 {
 public:
   void run()
   {
-    initWindow();
-    initVulkan();
-    mainLoop();
-    cleanup();
+
   }
-  
 private:
   GLFWwindow *m_window;
   vkw::Context m_context;
@@ -40,16 +35,20 @@ private:
 
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  std::vector<vkw::Vertex> vertices = 
+  const std::vector<vkw::Vertex> vertices =
   {
-    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
   };
 
-  static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+  const std::vector<uint16_t> indices =
+  {0, 1, 2, 2, 3, 0};
+
+  static void framebufferResizeCallback(GLFWwindow *window, int width, int height)
   {
-    auto app = reinterpret_cast<HelloTriangle*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<HelloRectangle*>(glfwGetWindowUserPointer(window));
     app->m_context.framebuffer_resized = true;
   }
 
@@ -58,7 +57,6 @@ private:
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
     m_window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
     glfwSetWindowUserPointer(m_window, this);
     glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
@@ -67,11 +65,12 @@ private:
   std::vector<const char*> getRequiredExtensions()
   {
     uint32_t glfw_extension_count = 0;
-    const char **glfw_extensions = 
+    const char **glfw_extensions =
       glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-
-    std::vector<const char*> extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
-
+    
+    std::vector<const char*> extensions(glfw_extensions, glfw_extensions + 
+      glfw_extension_count);
+    
     if (vkw::Validation::enable_validation_layers)
     {
       extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -82,7 +81,8 @@ private:
 
   void createSurface()
   {
-    if (glfwCreateWindowSurface(m_context.instance, m_window, nullptr, &m_context.surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(m_context.instance, m_window, nullptr, &m_context.surface)
+    != VK_SUCCESS)
     {
       throw std::runtime_error("failed to create window surface!");
     }
@@ -90,8 +90,8 @@ private:
 
   void createSwapChain()
   {
-    std::array<int, 2> buffer_size = 
-      Presentation::updateFramebufferSize(m_window);
+    std::array<int, 2> buffer_size
+      = Presentation::updateFramebufferSize(m_window);
 
     vkw::Swapchain::createSwapchain
     (
@@ -103,9 +103,11 @@ private:
 
   void createGraphicsPipeline()
   {
-    std::vector<std::string> vert_shader_files = {"vert.spv"};
-    std::vector<std::string> frag_shader_files = {"frag.spv"};
-
+    std::vector<std::string> vert_shader_files = 
+      {"vert.spv"};
+    std::vector<std::string> frag_shader_files =
+      {"frag.spv"};
+    
     vkw::GraphicsPipeline::createGraphicsPipeline
     (
       m_context,
@@ -120,9 +122,9 @@ private:
   {
     vkw::Instance::createInstance
     (
-      &m_context.instance, 
-      "Hello Triangle", 
-      (int[]){1, 0, 0},
+      &m_context.instance,
+      "Hello Rectangle",
+      (int[]){1,0,0},
       getRequiredExtensions()
     );
     vkw::Validation::setupDebugMessenger(m_context);
@@ -172,14 +174,14 @@ private:
   void cleanup()
   {
     vkw::Swapchain::cleanupSwapchain();
-    
+
     vkw::VertexBuffer::destroyVertexBuffer();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();
     vkw::Synchronization::destroySyncObjects();
     vkw::Command::destroyCommandPool();
     vkw::LogicalDevice::destroyLogicalDevice();
-    
+
     vkw::Validation::destroyDebugUtilsMessengerEXT();
 
     vkDestroySurfaceKHR(m_context.instance, m_context.surface, nullptr);
@@ -193,17 +195,17 @@ private:
 
 int main(int argc, char *argv[])
 {
-  HelloTriangle ht;
+  HelloRectangle hr;
 
-  try
+  try 
   {
-    ht.run();
+    hr.run();
   }
-  catch(const std::exception& e)
+  catch (const std::exception &e)
   {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
-  
+
   return EXIT_SUCCESS;
 }

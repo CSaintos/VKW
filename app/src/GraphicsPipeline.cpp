@@ -49,22 +49,25 @@ VkShaderModule vkw::GraphicsPipeline::createShaderModule
 
 void vkw::GraphicsPipeline::createGraphicsPipeline
 (
-  VkDevice *logical_device,
-  VkRenderPass *render_pass,
-  VkPipelineLayout *pipeline_layout,
-  VkPipeline *pipeline,
+  Context &context,
   const std::vector<std::string> &vert_shader_files,
   const std::vector<std::string> &frag_shader_files,
   const std::vector<VkVertexInputBindingDescription> &binding_descs,
   const std::vector<VkVertexInputAttributeDescription> &attrib_descs
 )
 {
+  // link static vars
+  m_logical_device = &context.logical_device;
+  m_render_pass = &context.render_pass;
+  m_pipeline_layout = &context.pipeline_layout;
+  m_pipeline = &context.graphics_pipeline;
+
   for (std::string vert_shader_file : vert_shader_files)
   {
     VkShaderModule vert_shader_module =
       createShaderModule
       (
-        *logical_device,
+        *m_logical_device,
         readFile(vert_shader_file)
       );
 
@@ -83,7 +86,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
     VkShaderModule frag_shader_module =
       createShaderModule
       (
-        *logical_device,
+        *m_logical_device,
         readFile(frag_shader_file)
       );
 
@@ -201,19 +204,14 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
 
   if (vkCreatePipelineLayout
     (
-      *logical_device, 
+      *m_logical_device, 
       &pipeline_layout_info, 
       nullptr, 
-      pipeline_layout
+      m_pipeline_layout
     ) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to create pipeline layout!");
   }
-
-  m_logical_device = logical_device;
-  m_render_pass = render_pass;
-  m_pipeline_layout = pipeline_layout;
-  m_pipeline = pipeline;
 
   VkGraphicsPipelineCreateInfo pipeline_info{};
   pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "vkw\Context.hpp"
 #include "vkw\QueueFamilyIndices.hpp"
 #include "vkw\VertexBuffer.hpp"
 
@@ -34,13 +35,7 @@ namespace vkw
      * @param physical_device needed to retrieve queue family indices
      * @param surface needed to retrieve queue family indices
     */
-    static void createCommandPool
-    (
-      VkDevice *logical_device,
-      VkCommandPool *command_pool,
-      VkPhysicalDevice &physical_device,
-      VkSurfaceKHR &surface
-    );
+    static void createCommandPool(Context &context);
     static void destroyCommandPool();
     static void createCommandBuffers
     (
@@ -64,7 +59,7 @@ namespace vkw
       VkExtent2D &swapchain_extent,
       VkPipeline &graphics_pipeline,
       VkBuffer &vertex_buffer,
-      std::vector<Vertex> &vertices
+      const std::vector<Vertex> &vertices
     );
   private:
     inline static VkDevice *m_logical_device = nullptr;

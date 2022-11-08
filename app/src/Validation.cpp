@@ -59,13 +59,16 @@ void vkw::Validation::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCrea
   create_info.pUserData = nullptr; // optional
 }
 
-void vkw::Validation::setupDebugMessenger(VkInstance *vk_instance, VkDebugUtilsMessengerEXT *debug_messenger)
+void vkw::Validation::setupDebugMessenger
+(
+  Context &context
+)
 {
-  if (!enable_validation_layers) return;
+  // link static vars
+  m_vk_instance = &context.instance;
+  m_debug_messenger = &context.debug_messenger;
 
-  // initialize member vars
-  m_vk_instance = vk_instance;
-  m_debug_messenger = debug_messenger;
+  if (!enable_validation_layers) return;
 
   // populate debug messenger create info
   populateDebugMessengerCreateInfo(m_create_info);

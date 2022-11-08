@@ -8,6 +8,8 @@
 #include <vector>
 #include <array>
 
+#include "vkw\Context.hpp"
+
 namespace vkw
 {
   /**
@@ -25,14 +27,7 @@ namespace vkw
   class Framebuffer
   {
   public:
-    static void createFramebuffers
-    (
-      VkDevice *logical_device,
-      std::vector<VkFramebuffer> *swapchain_framebuffers,
-      const std::vector<VkImageView> &swapchain_image_views,
-      const VkRenderPass &render_pass,
-      const VkExtent2D &swapchain_extent
-    );
+    static void createFramebuffers(Context &context);
     static void destroyFramebuffers();
   private:
     inline static VkDevice *m_logical_device = nullptr;

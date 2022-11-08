@@ -9,6 +9,8 @@
 #include <vector>
 #include <fstream>
 
+#include "vkw\Context.hpp"
+
 namespace vkw
 {
   class GraphicsPipeline
@@ -16,10 +18,7 @@ namespace vkw
   public:
     static void createGraphicsPipeline
     (
-      VkDevice *logical_device,
-      VkRenderPass *render_pass,
-      VkPipelineLayout *pipeline_layout,
-      VkPipeline *pipeline,
+      Context &context,
       const std::vector<std::string> &vert_shader_files,
       const std::vector<std::string> &frag_shader_files,
       const std::vector<VkVertexInputBindingDescription> &binding_descs,
