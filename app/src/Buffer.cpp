@@ -1,5 +1,5 @@
-// VertexBuffer.cpp
-#include "vkw\VertexBuffer.hpp"
+// Buffer.cpp
+#include "vkw\Buffer.hpp"
 
 void vkw::VertexBuffer::createVertexBuffer
 (
@@ -7,78 +7,19 @@ void vkw::VertexBuffer::createVertexBuffer
   const std::vector<Vertex> &vertices
 )
 {
-  // link members
+  // link static vars
   m_logical_device = &context.logical_device;
-
-  VkDeviceSize buffer_size = 
-    sizeof(vertices[0]) * vertices.size();
-
-  VkBuffer staging_buffer;
-  VkDeviceMemory staging_buffer_memory;
-  Buffer::createBuffer
-  (
-    buffer_size,
-    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-    staging_buffer,
-    staging_buffer_memory,
-    *m_logical_device,
-    context.physical_device
-  );
-
-  void *data;
-  vkMapMemory
-  (
-    *m_logical_device,
-    staging_buffer_memory,
-    0,
-    buffer_size,
-    0,
-    &data
-  );
-  memcpy(data, vertices.data(), (size_t) buffer_size);
-  vkUnmapMemory(*m_logical_device, staging_buffer_memory);
-
-  // link members
   m_vertex_buffer = &context.vertex_buffer;
   m_vertex_buffer_memory = &context.vertex_buffer_memory;
 
-  /*
-  We're now going to use the staging buffer and its memory
-  to map and copy the vertex data.
-
-  Using two flags:
-  - VK_BUFFER_USAGE_TRANSFER_SRC_BIT: buffer can be used as
-  source in a memory transfer operation.
-  - VK_BUFFER_USAGE_TRANSFER_DST_BIT: buffer can be used as
-  destination in a memory transfer operation.
-  */
-
-  Buffer::createBuffer
+  Buffer::createTemplateBuffer
   (
-    buffer_size,
-    VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-    *m_vertex_buffer,
-    *m_vertex_buffer_memory,
-    *m_logical_device,
-    context.physical_device
+    context,
+    vertices,
+    m_vertex_buffer,
+    m_vertex_buffer_memory,
+    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
   );
-
-  Buffer::copyBuffer
-  (
-    staging_buffer,
-    context.vertex_buffer,
-    buffer_size,
-    *m_logical_device,
-    context.command_pool,
-    context.graphics_queue
-  );
-
-  vkDestroyBuffer(*m_logical_device, staging_buffer, nullptr);
-  vkFreeMemory(*m_logical_device, staging_buffer_memory, nullptr);
 }
 
 void vkw::VertexBuffer::destroyVertexBuffer()
@@ -253,5 +194,139 @@ void vkw::Buffer::copyBuffer
     command_pool,
     1,
     &command_buffer
+  );
+}
+
+void vkw::IndexBuffer::createIndexBuffer
+(
+  Context &context,
+  const std::vector<uint16_t> &indices
+)
+{
+  // link static vars
+  m_logical_device = &context.logical_device;
+  m_index_buffer = &context.index_buffer;
+  m_index_buffer_memory = &context.index_buffer_memory;
+
+  Buffer::createTemplateBuffer
+  (
+    context,
+    indices,
+    m_index_buffer,
+    m_index_buffer_memory,
+    VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+  );
+}
+
+void vkw::IndexBuffer::destroyIndexBuffer()
+{
+  vkDestroyBuffer
+  (
+    *m_logical_device,
+    *m_index_buffer,
+    nullptr
+  );
+  vkFreeMemory
+  (
+    *m_logical_device,
+    *m_index_buffer_memory,
+    nullptr
+  );
+}
+
+template <typename T>
+void vkw::Buffer::createTemplateBuffer
+(
+  Context &context,
+  const std::vector<T> &vec,
+  VkBuffer *buffer,
+  VkDeviceMemory *memory,
+  const VkBufferUsageFlags &usage_flag
+)
+{
+  VkDeviceSize buffer_size = 
+    sizeof(vec[0]) * vec.size();
+  
+  VkBuffer staging_buffer;
+  VkDeviceMemory staging_buffer_memory;
+  createBuffer
+  (
+    buffer_size,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    staging_buffer,
+    staging_buffer_memory,
+    context.logical_device,
+    context.physical_device
+  );
+
+  void *data;
+  vkMapMemory
+  (
+    context.logical_device,
+    staging_buffer_memory,
+    0,
+    buffer_size,
+    0,
+    &data
+  );
+  memcpy
+  (
+    data,
+    vec.data(),
+    (size_t) buffer_size
+  );
+  vkUnmapMemory
+  (
+    context.logical_device,
+    staging_buffer_memory
+  );
+
+  /*
+  We use the staging buffer and its memory
+  to map and copy the buffer data.
+
+  Using two flags:
+  - VK_BUFFER_USAGE_TRANSFER_SRC_BIT: buffer can be used as
+  source in a memory transfer operation.
+  - VK_BUFFER_USAGE_TRANSFER_DST_BIT: buffer can be used as
+  destination in a memory transfer operation.
+  */
+
+  createBuffer
+  (
+    buffer_size,
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+    usage_flag,
+    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+    *buffer,
+    *memory,
+    context.logical_device,
+    context.physical_device
+  );
+
+  copyBuffer
+  (
+    staging_buffer,
+    *buffer,
+    buffer_size,
+    context.logical_device,
+    context.command_pool,
+    context.graphics_queue
+  );
+
+  vkDestroyBuffer
+  (
+    context.logical_device,
+    staging_buffer,
+    nullptr
+  );
+
+  vkFreeMemory
+  (
+    context.logical_device,
+    staging_buffer_memory,
+    nullptr
   );
 }

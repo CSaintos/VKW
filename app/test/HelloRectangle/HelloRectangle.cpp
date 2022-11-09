@@ -41,13 +41,10 @@ private:
 
   const std::vector<vkw::Vertex> vertices =
   {
-    {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-    //{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    //{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    //{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    //{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
   };
 
   const std::vector<uint16_t> indices =
@@ -179,6 +176,11 @@ private:
       m_context,
       vertices
     );
+    vkw::IndexBuffer::createIndexBuffer
+    (
+      m_context,
+      indices
+    );
     vkw::Command::createCommandBuffers
     (
       m_context.command_buffers,
@@ -225,7 +227,8 @@ private:
     vkw::Presentation::resubmitCommandBuffer
     (
       m_context,
-      vertices
+      vertices,
+      indices
     );
 
     // update swapchain if image is changed
@@ -257,6 +260,7 @@ private:
   {
     vkw::Swapchain::cleanupSwapchain();
 
+    vkw::IndexBuffer::destroyIndexBuffer();
     vkw::VertexBuffer::destroyVertexBuffer();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();

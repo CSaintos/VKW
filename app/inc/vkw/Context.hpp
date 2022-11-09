@@ -37,5 +37,7 @@ namespace vkw
     uint32_t current_image_idx = 0;
     VkBuffer vertex_buffer;
     VkDeviceMemory vertex_buffer_memory;
+    VkBuffer index_buffer;
+    VkDeviceMemory index_buffer_memory;
   };
 }

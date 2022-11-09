@@ -86,7 +86,9 @@ void vkw::Command::recordCommandBuffer
   VkExtent2D &swap_chain_extent,
   VkPipeline &graphics_pipeline,
   VkBuffer &vertex_buffer,
-  const std::vector<Vertex> &vertices
+  VkBuffer &index_buffer,
+  const std::vector<Vertex> &vertices,
+  const std::vector<uint16_t> &indices
 )
 {
   VkCommandBufferBeginInfo begin_info{};
@@ -176,6 +178,9 @@ void vkw::Command::recordCommandBuffer
     VkBuffer vertex_buffers[] = {vertex_buffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+    // We can only bind one index buffer. 
+    // So its possible to have duplicate vertex data.
+    vkCmdBindIndexBuffer(command_buffer, index_buffer, 0, VK_INDEX_TYPE_UINT16);
 
     /*
     vkCmdDraw()
@@ -186,7 +191,19 @@ void vkw::Command::recordCommandBuffer
     - firstInstance: Used as an offset for instanced rendering, defines the lowest
     value of gl_InstanceIndex.
     */
-    vkCmdDraw(command_buffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+    //vkCmdDraw(command_buffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+    /*
+    Similar to vkCmdDraw
+    */
+    vkCmdDrawIndexed
+    (
+      command_buffer, 
+      static_cast<uint32_t>(indices.size()),
+      1,
+      0,
+      0,
+      0
+    );
   
   // end render pass for recording cmd buffer
   vkCmdEndRenderPass(command_buffer);

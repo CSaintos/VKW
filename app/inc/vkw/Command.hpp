@@ -9,7 +9,7 @@
 
 #include "vkw\Context.hpp"
 #include "vkw\QueueFamilyIndices.hpp"
-#include "vkw\VertexBuffer.hpp"
+#include "vkw\Buffer.hpp"
 
 namespace vkw
 {
@@ -59,7 +59,9 @@ namespace vkw
       VkExtent2D &swapchain_extent,
       VkPipeline &graphics_pipeline,
       VkBuffer &vertex_buffer,
-      const std::vector<Vertex> &vertices
+      VkBuffer &index_buffer,
+      const std::vector<Vertex> &vertices,
+      const std::vector<uint16_t> &indices
     );
   private:
     inline static VkDevice *m_logical_device = nullptr;

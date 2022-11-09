@@ -40,12 +40,15 @@ private:
 
   const int MAX_FRAMES_IN_FLIGHT = 2;
 
-  std::vector<vkw::Vertex> vertices = 
+  const std::vector<vkw::Vertex> vertices = 
   {
     {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
     {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
     {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
   };
+
+  const std::vector<uint16_t> indices = 
+  {0, 1, 2};
 
   /**
    * Gets the framebuffer size for swapchain creation.
@@ -164,6 +167,11 @@ private:
       m_context,
       vertices
     );
+    vkw::IndexBuffer::createIndexBuffer
+    (
+      m_context,
+      indices
+    );
     vkw::Command::createCommandBuffers
     (
       m_context.command_buffers,
@@ -210,7 +218,8 @@ private:
     vkw::Presentation::resubmitCommandBuffer
     (
       m_context,
-      vertices
+      vertices,
+      indices
     );
 
     // update swapchain if image is changed
@@ -242,6 +251,7 @@ private:
   {
     vkw::Swapchain::cleanupSwapchain();
     
+    vkw::IndexBuffer::destroyIndexBuffer();
     vkw::VertexBuffer::destroyVertexBuffer();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
     vkw::RenderPass::destroyRenderPass();

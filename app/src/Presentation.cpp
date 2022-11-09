@@ -32,7 +32,8 @@ VkResult vkw::Presentation::acquireNextImage
 void vkw::Presentation::resubmitCommandBuffer
 (
   Context &context,
-  const std::vector<vkw::Vertex> &vertices
+  const std::vector<vkw::Vertex> &vertices,
+  const std::vector<uint16_t> &indices
 )
 {
   // Only resets fence if work is submitted
@@ -55,7 +56,9 @@ void vkw::Presentation::resubmitCommandBuffer
     context.swapchain_extent,
     context.graphics_pipeline,
     context.vertex_buffer,
-    vertices
+    context.index_buffer,
+    vertices,
+    indices
   );
 
   // With a fully recorded command bufer, we can now submit it.

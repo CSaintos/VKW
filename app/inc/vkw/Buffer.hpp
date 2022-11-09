@@ -1,4 +1,4 @@
-// VertexBuffer.hpp
+// Buffer.hpp
 #pragma once
 
 #include <vulkan\vulkan.hpp>
@@ -34,6 +34,21 @@ namespace vkw
     inline static VkDevice *m_logical_device = nullptr;
     inline static VkBuffer *m_vertex_buffer = nullptr;
     inline static VkDeviceMemory *m_vertex_buffer_memory = nullptr;
+  };
+
+  class IndexBuffer
+  {
+  public:
+    static void createIndexBuffer
+    (
+      Context &context,
+      const std::vector<uint16_t> &indices
+    );
+    static void destroyIndexBuffer();
+  private:
+    inline static VkDevice *m_logical_device = nullptr;
+    inline static VkBuffer *m_index_buffer = nullptr;
+    inline static VkDeviceMemory *m_index_buffer_memory = nullptr;
   };
 
   class Buffer
@@ -75,6 +90,15 @@ namespace vkw
       VkDevice &logical_device,
       VkCommandPool &command_pool,
       VkQueue &graphics_queue
+    );
+    template <typename T>
+    static void createTemplateBuffer
+    (
+      Context &context,
+      const std::vector<T> &vec,
+      VkBuffer *buffer,
+      VkDeviceMemory *memory,
+      const VkBufferUsageFlags &usage_flag
     );
   };
 }

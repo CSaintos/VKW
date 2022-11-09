@@ -10,7 +10,7 @@
 
 #include "vkw\Context.hpp"
 #include "vkw\Command.hpp"
-#include "vkw\VertexBuffer.hpp"
+#include "vkw\Buffer.hpp"
 
 namespace vkw 
 {
@@ -37,7 +37,8 @@ namespace vkw
     static void resubmitCommandBuffer
     (
       Context &context,
-      const std::vector<vkw::Vertex> &vertices
+      const std::vector<vkw::Vertex> &vertices,
+      const std::vector<uint16_t> &indices
     );
     /**
      * 3rd method to call in presentation.
