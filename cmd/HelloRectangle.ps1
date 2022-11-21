@@ -3,7 +3,7 @@ Set-Variable -Name "includes" -Value "-Iapp\test\lib\GLFW", `
 "-Iapp\test\lib\glm", "-Ilib\Vulkan\Include", "-Ibuild\vkw\inc", `
 "-Iapp\test\HelloRectangle"
 Set-Variable -Name "links" -Value "-Llib\Vulkan\Lib", "-Lapp\test\lib\GLFW", `
-"-Lbuild\vkw\lib", "-lvkw", "-l:libglfw3.a", "-lgdi32", "-lvulkan-1"
+"-Lbuild\vkw\lib", "-lvkw", "-llibglfw3", "-lgdi32", "-lvulkan-1"
 Set-Variable -Name "defines" -Value ""
 
 echo "clean"
