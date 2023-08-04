@@ -58,7 +58,10 @@ void vkw::Presentation::resubmitCommandBuffer
     context.vertex_buffer,
     context.index_buffer,
     vertices,
-    indices
+    indices,
+    context.pipeline_layout,
+    context.descriptor_sets,
+    context.current_frame
   );
 
   // With a fully recorded command bufer, we can now submit it.

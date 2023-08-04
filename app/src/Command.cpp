@@ -79,7 +79,7 @@ void vkw::Command::createCommandBuffers
 
 void vkw::Command::recordCommandBuffer
 (
-  VkCommandBuffer command_buffer,
+  VkCommandBuffer &command_buffer,
   uint32_t image_idx,
   VkRenderPass &render_pass,
   std::vector<VkFramebuffer> &swapchain_framebuffers,
@@ -88,7 +88,10 @@ void vkw::Command::recordCommandBuffer
   VkBuffer &vertex_buffer,
   VkBuffer &index_buffer,
   const std::vector<Vertex> &vertices,
-  const std::vector<uint16_t> &indices
+  const std::vector<uint16_t> &indices,
+  VkPipelineLayout &pipeline_layout,
+  std::vector<VkDescriptorSet> &descriptor_sets,
+  uint32_t &current_frame
 )
 {
   VkCommandBufferBeginInfo begin_info{};
@@ -182,6 +185,22 @@ void vkw::Command::recordCommandBuffer
     // So its possible to have duplicate vertex data.
     vkCmdBindIndexBuffer(command_buffer, index_buffer, 0, VK_INDEX_TYPE_UINT16);
 
+    // binding the right descriptor set for each frame to the descriptors
+    // in the shader.
+    if (descriptor_sets.size() > 0) 
+    {
+      vkCmdBindDescriptorSets
+      (
+        command_buffer,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        pipeline_layout,
+        0,
+        1,
+        &descriptor_sets[current_frame],
+        0,
+        nullptr
+      );
+    }
     /*
     vkCmdDraw()
     - vertexCount: we don't have a vertex buffer, we specify 3 vertices to draw.

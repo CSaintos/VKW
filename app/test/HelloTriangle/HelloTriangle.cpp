@@ -98,7 +98,10 @@ private:
     const char **glfw_extensions = 
       glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
-    std::vector<const char*> extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
+    std::vector<const char*> extensions
+    (
+      glfw_extensions, glfw_extensions + glfw_extension_count
+    );
 
     if (vkw::Validation::enable_validation_layers)
     {
@@ -110,7 +113,13 @@ private:
 
   void createSurface()
   {
-    if (glfwCreateWindowSurface(m_context.instance, m_window, nullptr, &m_context.surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface
+    (
+      m_context.instance, 
+      m_window, 
+      nullptr, 
+      &m_context.surface
+    ) != VK_SUCCESS)
     {
       throw std::runtime_error("failed to create window surface!");
     }
@@ -180,7 +189,7 @@ private:
     vkw::Synchronization::createSyncObjects
     (
       m_context,
-      &MAX_FRAMES_IN_FLIGHT
+      MAX_FRAMES_IN_FLIGHT
     );
   }
 

@@ -330,3 +330,75 @@ void vkw::Buffer::createTemplateBuffer
     nullptr
   );
 }
+
+void vkw::UniformBuffer::createUniformBuffers
+(
+  Context &context,
+  const int &flight_frame_count,
+  const VkDeviceSize &buffer_size
+)
+{
+  // link static vars
+  m_logical_device = &context.logical_device;
+  m_uniform_buffers = &context.uniform_buffers;
+  m_uniform_buffers_memory = &context.uniform_buffers_memory;
+  m_flight_frame_count = &flight_frame_count;
+
+  //VkDeviceSize buffer_size = sizeof(UniformBufferObject);
+
+  context.uniform_buffers.resize(flight_frame_count);
+  context.uniform_buffers_memory.resize(flight_frame_count);
+  context.uniform_buffers_mapped.resize(flight_frame_count);
+
+  for (size_t i = 0; i < flight_frame_count; i++)
+  {
+    Buffer::createBuffer
+    (
+      buffer_size,
+      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+      context.uniform_buffers[i],
+      context.uniform_buffers_memory[i],
+      context.logical_device,
+      context.physical_device
+    );
+
+    /*
+    We map the buffer right after creation.
+    The buffer stays mapped to the mapped pointer
+    for the app's whole lifetime.
+    This technique is called "persistent mapping".
+    Which enables us to not need to map the buffer every
+    time we need to update it, which increases performance.
+    */
+    vkMapMemory
+    (
+      context.logical_device,
+      context.uniform_buffers_memory[i],
+      0,
+      buffer_size,
+      0,
+      &context.uniform_buffers_mapped[i]
+    );
+  }
+}
+
+void vkw::UniformBuffer::destroyUniformBuffers()
+{
+  for (size_t i = 0; i < *m_flight_frame_count; i++)
+  {
+    vkDestroyBuffer
+    (
+      *m_logical_device,
+      (*m_uniform_buffers)[i],
+      nullptr
+    );
+    vkFreeMemory
+    (
+      *m_logical_device,
+      (*m_uniform_buffers_memory)[i],
+      nullptr
+    );
+  }
+}

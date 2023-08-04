@@ -142,7 +142,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
   rasterization_info.polygonMode = VK_POLYGON_MODE_FILL; // fill with fragments
   rasterization_info.lineWidth = 1.0f; // describes thickness of lines, in terms of # of frags. Any line thicker than 1.0f requires to enable wideLines GPU features.
   rasterization_info.cullMode = VK_CULL_MODE_BACK_BIT;
-  rasterization_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+  rasterization_info.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // due to glm
   rasterization_info.depthBiasEnable = VK_FALSE;
   rasterization_info.depthBiasConstantFactor = 0.0f; // Optional
   rasterization_info.depthBiasClamp = 0.0f; // Optional
@@ -197,8 +197,18 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
 
   VkPipelineLayoutCreateInfo pipeline_layout_info{};
   pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipeline_layout_info.setLayoutCount = 0; // Optional
-  pipeline_layout_info.pSetLayouts = nullptr; // Optional
+  
+  if (context.descriptor_set_layout)
+  {
+    pipeline_layout_info.setLayoutCount = 1;
+    pipeline_layout_info.pSetLayouts = &*context.descriptor_set_layout;
+  }
+  else
+  {
+    pipeline_layout_info.setLayoutCount = 0;
+    pipeline_layout_info.pSetLayouts = nullptr; // Optional
+  }
+
   pipeline_layout_info.pushConstantRangeCount = 0; // Optional
   pipeline_layout_info.pPushConstantRanges = nullptr; // Optional
 

@@ -17,3 +17,4 @@
 #include <vkw\Synchronization.hpp>
 #include <vkw\Buffer.hpp>
 #include <vkw\Presentation.hpp>
+#include <vkw\Descriptor.hpp>

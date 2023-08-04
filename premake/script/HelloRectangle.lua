@@ -16,6 +16,10 @@ project "HelloRectangle"
   use_GLFW()
   use_vulkan()
 
+  includedirs {
+    "%{wks.location}/../app/test/HelloRectangle"
+  }
+
   postbuildcommands {
     "glslc %{wks.location}/../app/test/HelloRectangle/Base.vert -o %{wks.location}/../build/HelloRectangle/vert.spv",
     "glslc %{wks.location}/../app/test/HelloRectangle/Base.frag -o %{wks.location}/../build/HelloRectangle/frag.spv"

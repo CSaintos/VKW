@@ -13,7 +13,7 @@ namespace vkw
     static void createSyncObjects
     (
       Context &context,
-      const int *flight_frame_count
+      const int &flight_frame_count
     );
     static void destroySyncObjects();
   private:

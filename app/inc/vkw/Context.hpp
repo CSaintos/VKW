@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include <vector>
+#include <optional>
 
 namespace vkw
 {
@@ -24,6 +25,7 @@ namespace vkw
     VkExtent2D swapchain_extent;
     std::vector<VkImageView> swapchain_image_views;
     VkRenderPass render_pass;
+    std::optional<VkDescriptorSetLayout> descriptor_set_layout;
     VkPipelineLayout pipeline_layout;
     VkPipeline graphics_pipeline;
     std::vector<VkFramebuffer> swapchain_framebuffers;
@@ -39,5 +41,10 @@ namespace vkw
     VkDeviceMemory vertex_buffer_memory;
     VkBuffer index_buffer;
     VkDeviceMemory index_buffer_memory;
+    std::vector<VkBuffer> uniform_buffers;
+    std::vector<VkDeviceMemory> uniform_buffers_memory;
+    std::vector<void *> uniform_buffers_mapped;
+    VkDescriptorPool descriptor_pool;
+    std::vector<VkDescriptorSet> descriptor_sets;
   };
 }

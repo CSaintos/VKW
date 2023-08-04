@@ -59,6 +59,6 @@ end
 function include_glm()
 
   includedirs {
-    "%{wks.location/../app/test/lib/glm"
+    "%{wks.location}/../app/test/lib/glm"
   }
 end

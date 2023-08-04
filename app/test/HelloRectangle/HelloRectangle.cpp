@@ -1,9 +1,14 @@
 // HelloRectangle.cpp
 #define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#include <glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_INCLUDE_VULKAN
+#define GLM_FORCE_RADIANS
+
+#include <glfw3.h>
 #include <glfw3native.h>
+
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 
 #include <cstdint>
 
@@ -11,8 +16,11 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <chrono>
 
 #include <vkw.hpp>
+
+#include "UniformBufferObject.hpp"
 
 /**
  * A rectangle app
@@ -98,8 +106,10 @@ private:
     const char **glfw_extensions =
       glfwGetRequiredInstanceExtensions(&glfw_extension_count);
     
-    std::vector<const char*> extensions(glfw_extensions, glfw_extensions + 
-      glfw_extension_count);
+    std::vector<const char*> extensions
+    (
+      glfw_extensions, glfw_extensions + glfw_extension_count
+    );
     
     if (vkw::Validation::enable_validation_layers)
     {
@@ -168,6 +178,7 @@ private:
     createSwapChain();
     vkw::Swapchain::createImageViews();
     vkw::RenderPass::createRenderPass(m_context);
+    vkw::Descriptor::createDescriptorSetLayout(m_context);
     createGraphicsPipeline();
     vkw::Framebuffer::createFramebuffers(m_context);
     vkw::Command::createCommandPool(m_context);
@@ -181,6 +192,23 @@ private:
       m_context,
       indices
     );
+    vkw::UniformBuffer::createUniformBuffers
+    (
+      m_context,
+      MAX_FRAMES_IN_FLIGHT,
+      sizeof(UniformBufferObject)
+    );
+    vkw::Descriptor::createDescriptorPool
+    (
+      m_context,
+      MAX_FRAMES_IN_FLIGHT
+    );
+    vkw::Descriptor::createDescriptorSets
+    (
+      m_context,
+      MAX_FRAMES_IN_FLIGHT,
+      sizeof(UniformBufferObject)
+    );
     vkw::Command::createCommandBuffers
     (
       m_context.command_buffers,
@@ -189,7 +217,7 @@ private:
     vkw::Synchronization::createSyncObjects
     (
       m_context,
-      &MAX_FRAMES_IN_FLIGHT
+      MAX_FRAMES_IN_FLIGHT
     );
   }
 
@@ -215,6 +243,80 @@ private:
     }
   }
 
+  void updateUniformBuffer()
+  {
+    static auto start_time = std::chrono::high_resolution_clock::now();
+
+    auto current_time = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>
+    (current_time - start_time).count();
+
+    UniformBufferObject ubo{};
+    /*
+    rotate function takes an existing transformation,
+    rotation angle and rotation axis as params.
+    glm::mat4(1.0f) constructor return the identity matrix.
+    Using a rotation angle of time * glm::radians(90.0f)
+    acoomplishes the purpose of rotation 90 degrees per
+    second.
+    */
+    ubo.model =
+    glm::rotate
+    (
+      glm::mat4(1.0f),
+      time * glm::radians(90.0f),
+      glm::vec3(0.0f, 0.0f, 1.0f) 
+    );
+    /*
+    The view transformation, we look at the geometry from
+    above at a 45 deg angle. The lookAt function
+    takes the eye position, center position, and up axis
+    params.
+    */
+    ubo.view =
+    glm::lookAt
+    (
+      glm::vec3(2.0f, 2.0f, 2.0f),
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 0.0f, 1.0f)
+    );
+    /*
+    The perspective projection, will have a 45 deg vertical
+    FOV. The other params are the aspect ratio, near and
+    far view planes. It's important to use the current
+    swapchain extent to calculate the aspect ratio to take
+    into account the new width and height of the window
+    after a resize.
+    */
+    ubo.proj =
+    glm::perspective
+    (
+      glm::radians(45.0f),
+      m_context.swapchain_extent.width /
+      (float) m_context.swapchain_extent.height,
+      0.1f,
+      10.0f
+    );
+    /*
+    GLM was originally designed for OpenGL, where the Y
+    coord of the clip coords is inverted. So, to compensate,
+    we flip the sign on the scaling factor.
+    */
+    ubo.proj[1][1] *= -1;
+
+    /*
+    After finishing the transformations, we copy the data in
+    the ubo to the current uniform buffer. Like the vertex
+    buffers, except without a staging buffer.
+    */
+    memcpy
+    (
+      m_context.uniform_buffers_mapped[m_context.current_frame],
+      &ubo,
+      sizeof(ubo)
+    );
+  }
+
   void drawFrame()
   {
     // update swapchain if image is changed
@@ -223,6 +325,8 @@ private:
       // get next image to check for frame changes
       vkw::Presentation::acquireNextImage(m_context)
     );
+
+    updateUniformBuffer();
 
     vkw::Presentation::resubmitCommandBuffer
     (
@@ -260,6 +364,9 @@ private:
   {
     vkw::Swapchain::cleanupSwapchain();
 
+    vkw::UniformBuffer::destroyUniformBuffers();
+    vkw::Descriptor::destroyDescriptorPool();
+    vkw::Descriptor::destroyDescriptorSetLayout();
     vkw::IndexBuffer::destroyIndexBuffer();
     vkw::VertexBuffer::destroyVertexBuffer();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();

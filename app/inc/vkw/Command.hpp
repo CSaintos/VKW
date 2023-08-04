@@ -52,7 +52,7 @@ namespace vkw
     */
     static void recordCommandBuffer
     (
-      VkCommandBuffer command_buffer,
+      VkCommandBuffer &command_buffer,
       uint32_t image_idx,
       VkRenderPass &render_pass,
       std::vector<VkFramebuffer> &swapchain_framebuffers,
@@ -61,7 +61,10 @@ namespace vkw
       VkBuffer &vertex_buffer,
       VkBuffer &index_buffer,
       const std::vector<Vertex> &vertices,
-      const std::vector<uint16_t> &indices
+      const std::vector<uint16_t> &indices,
+      VkPipelineLayout &pipeline_layout,
+      std::vector<VkDescriptorSet> &descriptor_sets,
+      uint32_t &current_frame
     );
   private:
     inline static VkDevice *m_logical_device = nullptr;

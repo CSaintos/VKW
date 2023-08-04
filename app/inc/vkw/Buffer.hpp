@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "vkw\Context.hpp"
+#include "vkw\Descriptor.hpp"
 
 namespace vkw
 {
@@ -101,4 +102,22 @@ namespace vkw
       const VkBufferUsageFlags &usage_flag
     );
   };
-}
+
+  class UniformBuffer
+  {
+  public:
+    static void createUniformBuffers
+    (
+      Context &context,
+      const int &flight_frame_count,
+      const VkDeviceSize &buffer_size
+    );
+    static void destroyUniformBuffers();
+  private:
+    inline static VkDevice *m_logical_device = nullptr;
+    inline static std::vector<VkBuffer> *m_uniform_buffers = nullptr;
+    inline static std::vector<VkDeviceMemory> *m_uniform_buffers_memory = 
+      nullptr;
+    inline static const int *m_flight_frame_count = nullptr;
+  };
+} 
