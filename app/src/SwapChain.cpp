@@ -107,6 +107,12 @@ VkExtent2D vkw::Swapchain::chooseSwapExtent
       static_cast<uint32_t>(height)
     };
     
+    /*
+    std::clamp(v, lo, hi);
+      if v < lo return lo;
+      else if v > hi return hi;
+      else return v;
+    */
     actual_extent.width = 
       std::clamp 
       (
