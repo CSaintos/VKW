@@ -6,6 +6,8 @@ void vkw::PhysicalDevice::pickPhysicalDevice
   Context &context
 )
 {
+  // First count physical devices.
+  // array parameter is null, method sets device_count int.
   uint32_t device_count = 0;
   vkEnumeratePhysicalDevices(context.instance, &device_count, nullptr);
 
@@ -14,6 +16,7 @@ void vkw::PhysicalDevice::pickPhysicalDevice
     throw std::runtime_error("failed to find GPUs with Vulkan support!");
   }
 
+  // When array param is provided, it fills the array.
   std::vector<VkPhysicalDevice> devices(device_count);
   vkEnumeratePhysicalDevices(context.instance, &device_count, devices.data());
 
