@@ -108,8 +108,8 @@ VkResult vkw::Presentation::presentQueue
 )
 {
   /*
-  The last step of drawing a frame is submitting the result back to
-  the swapchain to show up on screen.
+  The last step of drawing a frame is submitting the result back
+  to the swapchain to show up on screen.
   */
   VkPresentInfoKHR present_info{};
   present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -143,5 +143,5 @@ void vkw::Presentation::nextFrame
 )
 {
   context.current_frame = 
-    (context.current_frame + 1) &flight_frame_count;
+    (context.current_frame + 1) % flight_frame_count;
 }

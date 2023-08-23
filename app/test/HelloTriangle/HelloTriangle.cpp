@@ -58,7 +58,17 @@ private:
   */
   void updateFramebufferSize()
   {
-    do 
+    glfwGetFramebufferSize
+    (
+      m_window,
+      &m_buffer_size[0],
+      &m_buffer_size[1]
+    );
+    while 
+    (
+      m_buffer_size[0] == 0 ||
+      m_buffer_size[1] == 0
+    )
     {
       glfwGetFramebufferSize
       (
@@ -67,12 +77,22 @@ private:
         &m_buffer_size[1]
       );
       glfwWaitEvents();
-    } 
-    while 
-    (
-      m_buffer_size[0] == 0 ||
-      m_buffer_size[1] == 0
-    );
+    }
+    // do 
+    // {
+    //   glfwGetFramebufferSize
+    //   (
+    //     m_window,
+    //     &m_buffer_size[0],
+    //     &m_buffer_size[1]
+    //   );
+    //   glfwWaitEvents();
+    // } 
+    // while 
+    // (
+    //   m_buffer_size[0] == 0 ||
+    //   m_buffer_size[1] == 0
+    // );
   }
 
   static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
