@@ -201,7 +201,7 @@ void vkw::GraphicsPipeline::createGraphicsPipeline
   if (context.descriptor_set_layout)
   {
     pipeline_layout_info.setLayoutCount = 1;
-    pipeline_layout_info.pSetLayouts = &*context.descriptor_set_layout;
+    pipeline_layout_info.pSetLayouts = &context.descriptor_set_layout;
   }
   else
   {

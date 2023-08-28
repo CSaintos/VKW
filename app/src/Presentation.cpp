@@ -67,15 +67,14 @@ void vkw::Presentation::resubmitCommandBuffer
   // With a fully recorded command bufer, we can now submit it.
   VkSubmitInfo submit_info{};
   submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  VkSemaphore wait_semaphores[] = 
+  std::vector<VkSemaphore> wait_semaphores = 
     {context.image_available_semaphores[context.current_frame]};
   VkPipelineStageFlags wait_stages[] =
     {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   // These three params specify which semaphores to wait on before
   // execution begins and in which stage(s) of the pipeline to wait.
-  submit_info.waitSemaphoreCount = 
-    sizeof(wait_semaphores) / sizeof(wait_semaphores[0]);
-  submit_info.pWaitSemaphores = wait_semaphores;
+  submit_info.waitSemaphoreCount = wait_semaphores.size();
+  submit_info.pWaitSemaphores = wait_semaphores.data();
   submit_info.pWaitDstStageMask = wait_stages;
   submit_info.commandBufferCount = 1;
   submit_info.pCommandBuffers =
@@ -89,6 +88,7 @@ void vkw::Presentation::resubmitCommandBuffer
 
   if 
   (
+    //! Seg fault happens here
     vkQueueSubmit
     (
       context.graphics_queue,

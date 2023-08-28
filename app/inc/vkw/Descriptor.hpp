@@ -55,8 +55,9 @@ namespace vkw
     Descriptor();
 
     inline static VkDevice *m_logical_device = nullptr;
-    inline static std::optional<VkDescriptorSetLayout> *m_descriptor_set_layout = 
-      nullptr;
+    // inline static std::optional<VkDescriptorSetLayout> *m_descriptor_set_layout = 
+    //  nullptr;
+    inline static VkDescriptorSetLayout *m_descriptor_set_layout = nullptr;
     inline static VkDescriptorPool *m_descriptor_pool = nullptr;
   };
 }

@@ -32,7 +32,7 @@ void vkw::Descriptor::createDescriptorSetLayout
       *m_logical_device,
       &layout_info,
       nullptr,
-      &**m_descriptor_set_layout
+      m_descriptor_set_layout
     ) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to create descriptor set layout!");
@@ -44,7 +44,7 @@ void vkw::Descriptor::destroyDescriptorSetLayout()
   vkDestroyDescriptorSetLayout
   (
     *m_logical_device,
-    **m_descriptor_set_layout,
+    *m_descriptor_set_layout,
     nullptr
   );
 }
@@ -96,10 +96,10 @@ void vkw::Descriptor::createDescriptorSets
 )
 {
   std::vector<VkDescriptorSetLayout> layouts
-    (flight_frame_count, *context.descriptor_set_layout);
+    (flight_frame_count, *m_descriptor_set_layout);
   VkDescriptorSetAllocateInfo alloc_info{};
   alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  alloc_info.descriptorPool = context.descriptor_pool;
+  alloc_info.descriptorPool = *m_descriptor_pool;
   alloc_info.descriptorSetCount = 
     static_cast<uint32_t>(flight_frame_count);
   alloc_info.pSetLayouts = layouts.data();
@@ -119,7 +119,7 @@ void vkw::Descriptor::createDescriptorSets
   for (size_t i = 0; i < flight_frame_count; i++)
   {
     /*
-    Descriptors that refer to buffers, like ubos, are configured with
+    Descriptors that refer to buffers, like uniform buffers, are configured with
     VkDescriptorBufferInfo struct.
     */
     VkDescriptorBufferInfo buffer_info{};

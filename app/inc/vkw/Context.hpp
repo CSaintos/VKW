@@ -25,7 +25,8 @@ namespace vkw
     VkExtent2D swapchain_extent;
     std::vector<VkImageView> swapchain_image_views;
     VkRenderPass render_pass;
-    std::optional<VkDescriptorSetLayout> descriptor_set_layout;
+    //std::optional<VkDescriptorSetLayout> descriptor_set_layout;
+    VkDescriptorSetLayout descriptor_set_layout;
     VkPipelineLayout pipeline_layout;
     VkPipeline graphics_pipeline;
     std::vector<VkFramebuffer> swapchain_framebuffers;
@@ -36,7 +37,6 @@ namespace vkw
     std::vector<VkFence> in_flight_fences;
     uint32_t current_frame = 0;
     bool framebuffer_resized = false;
-    uint32_t current_image_idx = 0;
     VkBuffer vertex_buffer;
     VkDeviceMemory vertex_buffer_memory;
     VkBuffer index_buffer;

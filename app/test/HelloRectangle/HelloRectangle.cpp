@@ -6,12 +6,10 @@
 
 #include <glfw3.h>
 #include <glfw3native.h>
-
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
 #include <cstdint>
-
 #include <iostream>
 #include <vector>
 #include <string>

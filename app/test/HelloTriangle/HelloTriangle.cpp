@@ -1,18 +1,24 @@
 // HelloTriangle.cpp
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
-#include <glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
+#define GLM_FORCE_RADIANS
+
+#include <glfw3.h>
 #include <glfw3native.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdint>
-
 #include <iostream>
 #include <vector>
 #include <string>
 #include <array>
+#include <chrono>
 
 #include <vkw.hpp>
+
+#include "UniformBufferObject.hpp"
 
 /**
  * A triangle app
@@ -188,6 +194,7 @@ private:
     createSwapChain();
     vkw::Swapchain::createImageViews();
     vkw::RenderPass::createRenderPass(m_context);
+    vkw::Descriptor::createDescriptorSetLayout(m_context);
     createGraphicsPipeline();
     vkw::Framebuffer::createFramebuffers(m_context);
     vkw::Command::createCommandPool(m_context);
@@ -200,6 +207,23 @@ private:
     (
       m_context,
       indices
+    );
+    vkw::UniformBuffer::createUniformBuffers
+    (
+      m_context,
+      MAX_FRAMES_IN_FLIGHT,
+      sizeof(UniformBufferObject)
+    );
+    vkw::Descriptor::createDescriptorPool
+    (
+      m_context,
+      MAX_FRAMES_IN_FLIGHT
+    );
+    vkw::Descriptor::createDescriptorSets
+    (
+      m_context,
+      MAX_FRAMES_IN_FLIGHT,
+      sizeof(UniformBufferObject)
     );
     vkw::Command::createCommandBuffers
     (
@@ -235,6 +259,22 @@ private:
     }
   }
 
+  void updateUniformBuffer()
+  {
+    static auto start_time = std::chrono::high_resolution_clock::now();
+
+    auto current_time = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
+
+    UniformBufferObject ubo{};
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f), m_context.swapchain_extent.width / (float) m_context.swapchain_extent.height, 0.1f, 10.0f);
+    ubo.proj[1][1] *= -1;
+
+    memcpy(m_context.uniform_buffers_mapped[m_context.current_frame], &ubo, sizeof(ubo));
+  }
+
   void drawFrame()
   {
     // update swapchain if image is changed
@@ -243,6 +283,8 @@ private:
       // get next image to check for frame changes
       vkw::Presentation::acquireNextImage(m_context)
     );
+
+    updateUniformBuffer();
 
     vkw::Presentation::resubmitCommandBuffer
     (
@@ -280,6 +322,9 @@ private:
   {
     vkw::Swapchain::cleanupSwapchain();
     
+    vkw::UniformBuffer::destroyUniformBuffers();
+    vkw::Descriptor::destroyDescriptorPool();
+    vkw::Descriptor::destroyDescriptorSetLayout();
     vkw::IndexBuffer::destroyIndexBuffer();
     vkw::VertexBuffer::destroyVertexBuffer();
     vkw::GraphicsPipeline::destroyGraphicsPipeline();
