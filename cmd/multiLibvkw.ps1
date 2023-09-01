@@ -51,22 +51,6 @@ ar -rs build\vkw\lib\vkw.lib bin\Presentation.o
 ar -rs build\vkw\lib\vkw.lib bin\Buffer.o
 ar -rs build\vkw\lib\vkw.lib bin\Descriptor.o
 
-# ar -rcs build\vkw\lib\vkw.lib `
-# build\vkw\lib\instance.lib `
-# build\vkw\lib\validation.lib `
-# build\vkw\lib\queueFamilyIndices.lib `
-# build\vkw\lib\physicalDevice.lib `
-# build\vkw\lib\logicalDevice.lib `
-# build\vkw\lib\swapchain.lib `
-# build\vkw\lib\renderPass.lib `
-# build\vkw\lib\graphicsPipeline.lib `
-# build\vkw\lib\frameBuffer.lib `
-# build\vkw\lib\command.lib `
-# build\vkw\lib\synchronization.lib `
-# build\vkw\lib\presentation.lib `
-# build\vkw\lib\buffer.lib `
-# build\vkw\lib\descriptor.lib 
-
 Copy-Item -Path "app\inc\*" -Destination "build\vkw\inc" -Recurse
 
 echo "obj-clean"
