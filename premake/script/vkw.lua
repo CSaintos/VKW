@@ -1,4 +1,5 @@
 -- VKW.lua
+
 project "vkw"
   kind "StaticLib"
   language "C++"
