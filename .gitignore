@@ -1,6 +1,3 @@
 
-# ignore generated files
-make/
-
 # ingore Vulkan library
 lib/Vulkan/
